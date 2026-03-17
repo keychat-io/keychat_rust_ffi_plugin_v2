@@ -1,0 +1,29 @@
+group 'io.keychat.keychat_rust_ffi_plugin_v2'
+version '1.0'
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply from: "../cargokit/gradle/plugin.gradle"
+
+android {
+    compileSdkVersion 33
+    defaultConfig {
+        minSdkVersion 21
+    }
+}

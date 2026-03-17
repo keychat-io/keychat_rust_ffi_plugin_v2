@@ -1,0 +1,23 @@
+[package]
+name = "keychat_rust_ffi_plugin_v2"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+# Core
+flutter_rust_bridge = "=2.11.1"
+anyhow = "1"
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+lazy_static = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+base64 = "0.22"
+rand = "0.8"
+uuid = { version = "1", features = ["v4"] }
+
+# libkeychat — protocol V2 engine (no cashu, no MLS — just Signal PQXDH + storage)
+libkeychat = { git = "https://github.com/keychat-io/keychat-protocol.git", branch = "main", default-features = false, features = ["storage"] }

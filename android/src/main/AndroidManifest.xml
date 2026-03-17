@@ -1,0 +1,3 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.keychat.keychat_rust_ffi_plugin_v2">
+</manifest>

@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+set(PROJECT_NAME "keychat_rust_ffi_plugin_v2")
+project(${PROJECT_NAME} LANGUAGES CXX)
+include("../cargokit/cmake/cargokit.cmake")
+apply_cargokit(${PROJECT_NAME} ../rust keychat_rust_ffi_plugin_v2 "")
