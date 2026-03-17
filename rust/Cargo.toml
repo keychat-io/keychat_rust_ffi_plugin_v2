@@ -20,4 +20,5 @@ rand = "0.8"
 uuid = { version = "1", features = ["v4"] }
 
 # libkeychat — protocol V2 engine (no cashu, no MLS — just Signal PQXDH + storage)
-libkeychat = { git = "https://github.com/keychat-io/keychat-protocol.git", branch = "main", default-features = false, features = ["storage"] }
+libkeychat = { git = "https://github.com/keychat-io/keychat-protocol.git", branch = "main", default-features = false, features = ["storage", "mls"] }
+hex = "0.4"

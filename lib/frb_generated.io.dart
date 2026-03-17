@@ -61,6 +61,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   V2IncomingFriendRequest dco_decode_v_2_incoming_friend_request(dynamic raw);
 
   @protected
+  V2MlsAddMembersResult dco_decode_v_2_mls_add_members_result(dynamic raw);
+
+  @protected
+  V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw);
+
+  @protected
+  V2MlsGroupInfo dco_decode_v_2_mls_group_info(dynamic raw);
+
+  @protected
   V2ParsedMessage dco_decode_v_2_parsed_message(dynamic raw);
 
   @protected
@@ -109,6 +118,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(
       SseDeserializer deserializer);
+
+  @protected
+  V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(
+      SseDeserializer deserializer);
+
+  @protected
+  V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(
+      SseDeserializer deserializer);
+
+  @protected
+  V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer);
 
   @protected
   V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer);
@@ -170,6 +190,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_v_2_incoming_friend_request(
       V2IncomingFriendRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_v_2_mls_add_members_result(
+      V2MlsAddMembersResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_v_2_mls_decrypt_result(
+      V2MlsDecryptResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_v_2_mls_group_info(
+      V2MlsGroupInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_v_2_parsed_message(

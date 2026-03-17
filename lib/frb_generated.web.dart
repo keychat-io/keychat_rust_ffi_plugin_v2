@@ -54,6 +54,12 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 
 @protected V2IncomingFriendRequest dco_decode_v_2_incoming_friend_request(dynamic raw);
 
+@protected V2MlsAddMembersResult dco_decode_v_2_mls_add_members_result(dynamic raw);
+
+@protected V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw);
+
+@protected V2MlsGroupInfo dco_decode_v_2_mls_group_info(dynamic raw);
+
 @protected V2ParsedMessage dco_decode_v_2_parsed_message(dynamic raw);
 
 @protected V2UnwrappedEvent dco_decode_v_2_unwrapped_event(dynamic raw);
@@ -85,6 +91,12 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 @protected V2FriendRequestResult sse_decode_v_2_friend_request_result(SseDeserializer deserializer);
 
 @protected V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(SseDeserializer deserializer);
+
+@protected V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(SseDeserializer deserializer);
+
+@protected V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(SseDeserializer deserializer);
+
+@protected V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer);
 
 @protected V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer);
 
@@ -121,6 +133,12 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_web.dart';
 @protected void sse_encode_v_2_friend_request_result(V2FriendRequestResult self, SseSerializer serializer);
 
 @protected void sse_encode_v_2_incoming_friend_request(V2IncomingFriendRequest self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_mls_add_members_result(V2MlsAddMembersResult self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_mls_decrypt_result(V2MlsDecryptResult self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_mls_group_info(V2MlsGroupInfo self, SseSerializer serializer);
 
 @protected void sse_encode_v_2_parsed_message(V2ParsedMessage self, SseSerializer serializer);
 

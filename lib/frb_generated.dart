@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 1779808993;
+  int get rustContentHash => -1393037194;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -105,6 +105,46 @@ abstract class RustLibApi extends BaseApi {
 
   Future<List<String>> crateApiV2V2GetAllReceivingAddresses(
       {required String peerSignalId});
+
+  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers(
+      {required String groupId, required String keyPackagesBase64Json});
+
+  Future<void> crateApiV2V2MlsCreateGroup(
+      {required String groupId, required String name});
+
+  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt(
+      {required String groupId, required String ciphertextBase64});
+
+  Future<String> crateApiV2V2MlsDeriveTempInbox({required String groupId});
+
+  Future<String> crateApiV2V2MlsEncrypt(
+      {required String groupId, required String plaintext});
+
+  Future<String> crateApiV2V2MlsGenerateKeyPackage();
+
+  Future<V2MlsGroupInfo> crateApiV2V2MlsGroupInfo({required String groupId});
+
+  Future<List<String>> crateApiV2V2MlsGroupMembers({required String groupId});
+
+  Future<void> crateApiV2V2MlsInit();
+
+  Future<String> crateApiV2V2MlsJoinGroup({required String welcomeBase64});
+
+  Future<String> crateApiV2V2MlsLeaveGroup({required String groupId});
+
+  Future<void> crateApiV2V2MlsProcessCommit(
+      {required String groupId, required String commitBase64});
+
+  Future<String> crateApiV2V2MlsRemoveMembers(
+      {required String groupId, required String memberIdsJson});
+
+  Future<String> crateApiV2V2MlsSelfUpdate({required String groupId});
+
+  Future<String> crateApiV2V2MlsUpdateGroup(
+      {required String groupId,
+      String? name,
+      String? status,
+      String? adminPubkeysJson});
 
   Future<V2ParsedMessage> crateApiV2V2ParseMessage({required String json});
 
@@ -394,13 +434,395 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers(
+      {required String groupId, required String keyPackagesBase64Json}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(keyPackagesBase64Json, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 11, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_v_2_mls_add_members_result,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsAddMembersConstMeta,
+      argValues: [groupId, keyPackagesBase64Json],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsAddMembersConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_add_members",
+        argNames: ["groupId", "keyPackagesBase64Json"],
+      );
+
+  @override
+  Future<void> crateApiV2V2MlsCreateGroup(
+      {required String groupId, required String name}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(name, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 12, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsCreateGroupConstMeta,
+      argValues: [groupId, name],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsCreateGroupConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_create_group",
+        argNames: ["groupId", "name"],
+      );
+
+  @override
+  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt(
+      {required String groupId, required String ciphertextBase64}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(ciphertextBase64, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 13, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_v_2_mls_decrypt_result,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsDecryptConstMeta,
+      argValues: [groupId, ciphertextBase64],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsDecryptConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_decrypt",
+        argNames: ["groupId", "ciphertextBase64"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsDeriveTempInbox({required String groupId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 14, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsDeriveTempInboxConstMeta,
+      argValues: [groupId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsDeriveTempInboxConstMeta =>
+      const TaskConstMeta(
+        debugName: "v2_mls_derive_temp_inbox",
+        argNames: ["groupId"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsEncrypt(
+      {required String groupId, required String plaintext}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(plaintext, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 15, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsEncryptConstMeta,
+      argValues: [groupId, plaintext],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsEncryptConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_encrypt",
+        argNames: ["groupId", "plaintext"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsGenerateKeyPackage() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 16, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsGenerateKeyPackageConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsGenerateKeyPackageConstMeta =>
+      const TaskConstMeta(
+        debugName: "v2_mls_generate_key_package",
+        argNames: [],
+      );
+
+  @override
+  Future<V2MlsGroupInfo> crateApiV2V2MlsGroupInfo({required String groupId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 17, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_v_2_mls_group_info,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsGroupInfoConstMeta,
+      argValues: [groupId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsGroupInfoConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_group_info",
+        argNames: ["groupId"],
+      );
+
+  @override
+  Future<List<String>> crateApiV2V2MlsGroupMembers({required String groupId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 18, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_list_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsGroupMembersConstMeta,
+      argValues: [groupId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsGroupMembersConstMeta =>
+      const TaskConstMeta(
+        debugName: "v2_mls_group_members",
+        argNames: ["groupId"],
+      );
+
+  @override
+  Future<void> crateApiV2V2MlsInit() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 19, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsInitConstMeta,
+      argValues: [],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsInitConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_init",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsJoinGroup({required String welcomeBase64}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(welcomeBase64, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 20, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsJoinGroupConstMeta,
+      argValues: [welcomeBase64],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsJoinGroupConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_join_group",
+        argNames: ["welcomeBase64"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsLeaveGroup({required String groupId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 21, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsLeaveGroupConstMeta,
+      argValues: [groupId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsLeaveGroupConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_leave_group",
+        argNames: ["groupId"],
+      );
+
+  @override
+  Future<void> crateApiV2V2MlsProcessCommit(
+      {required String groupId, required String commitBase64}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(commitBase64, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 22, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsProcessCommitConstMeta,
+      argValues: [groupId, commitBase64],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsProcessCommitConstMeta =>
+      const TaskConstMeta(
+        debugName: "v2_mls_process_commit",
+        argNames: ["groupId", "commitBase64"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsRemoveMembers(
+      {required String groupId, required String memberIdsJson}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_String(memberIdsJson, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 23, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsRemoveMembersConstMeta,
+      argValues: [groupId, memberIdsJson],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsRemoveMembersConstMeta =>
+      const TaskConstMeta(
+        debugName: "v2_mls_remove_members",
+        argNames: ["groupId", "memberIdsJson"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsSelfUpdate({required String groupId}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 24, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsSelfUpdateConstMeta,
+      argValues: [groupId],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsSelfUpdateConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_self_update",
+        argNames: ["groupId"],
+      );
+
+  @override
+  Future<String> crateApiV2V2MlsUpdateGroup(
+      {required String groupId,
+      String? name,
+      String? status,
+      String? adminPubkeysJson}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_String(groupId, serializer);
+        sse_encode_opt_String(name, serializer);
+        sse_encode_opt_String(status, serializer);
+        sse_encode_opt_String(adminPubkeysJson, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 25, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_String,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kCrateApiV2V2MlsUpdateGroupConstMeta,
+      argValues: [groupId, name, status, adminPubkeysJson],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta get kCrateApiV2V2MlsUpdateGroupConstMeta => const TaskConstMeta(
+        debugName: "v2_mls_update_group",
+        argNames: ["groupId", "name", "status", "adminPubkeysJson"],
+      );
+
+  @override
   Future<V2ParsedMessage> crateApiV2V2ParseMessage({required String json}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(json, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 11, port: port_);
+            funcId: 26, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_v_2_parsed_message,
@@ -425,7 +847,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(eventJson, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 12, port: port_);
+            funcId: 27, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_v_2_incoming_friend_request,
@@ -455,7 +877,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(peerNostrPubkey, serializer);
         sse_encode_opt_String(firstInbox, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 13, port: port_);
+            funcId: 28, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -480,7 +902,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(peerSignalId, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 14, port: port_);
+            funcId: 29, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -507,7 +929,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(eventJson, serializer);
         sse_encode_String(cashuToken, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 15, port: port_);
+            funcId: 30, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -532,7 +954,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(eventJson, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 16, port: port_);
+            funcId: 31, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_v_2_unwrapped_event,
@@ -558,7 +980,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         sse_encode_String(innerContent, serializer);
         sse_encode_String(receiverNpub, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 17, port: port_);
+            funcId: 32, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -703,6 +1125,43 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       signalKyberPrekeySignature: dco_decode_String(arr[12]),
       globalSign: dco_decode_String(arr[13]),
       payloadJson: dco_decode_String(arr[14]),
+    );
+  }
+
+  @protected
+  V2MlsAddMembersResult dco_decode_v_2_mls_add_members_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return V2MlsAddMembersResult(
+      commitBase64: dco_decode_String(arr[0]),
+      welcomeBase64: dco_decode_String(arr[1]),
+    );
+  }
+
+  @protected
+  V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return V2MlsDecryptResult(
+      plaintext: dco_decode_String(arr[0]),
+      senderId: dco_decode_String(arr[1]),
+    );
+  }
+
+  @protected
+  V2MlsGroupInfo dco_decode_v_2_mls_group_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return V2MlsGroupInfo(
+      name: dco_decode_String(arr[0]),
+      status: dco_decode_String(arr[1]),
+      adminsJson: dco_decode_String(arr[2]),
     );
   }
 
@@ -884,6 +1343,35 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_commitBase64 = sse_decode_String(deserializer);
+    var var_welcomeBase64 = sse_decode_String(deserializer);
+    return V2MlsAddMembersResult(
+        commitBase64: var_commitBase64, welcomeBase64: var_welcomeBase64);
+  }
+
+  @protected
+  V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(
+      SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_plaintext = sse_decode_String(deserializer);
+    var var_senderId = sse_decode_String(deserializer);
+    return V2MlsDecryptResult(plaintext: var_plaintext, senderId: var_senderId);
+  }
+
+  @protected
+  V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_status = sse_decode_String(deserializer);
+    var var_adminsJson = sse_decode_String(deserializer);
+    return V2MlsGroupInfo(
+        name: var_name, status: var_status, adminsJson: var_adminsJson);
+  }
+
+  @protected
   V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_kind = sse_decode_String(deserializer);
@@ -1034,6 +1522,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.signalKyberPrekeySignature, serializer);
     sse_encode_String(self.globalSign, serializer);
     sse_encode_String(self.payloadJson, serializer);
+  }
+
+  @protected
+  void sse_encode_v_2_mls_add_members_result(
+      V2MlsAddMembersResult self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.commitBase64, serializer);
+    sse_encode_String(self.welcomeBase64, serializer);
+  }
+
+  @protected
+  void sse_encode_v_2_mls_decrypt_result(
+      V2MlsDecryptResult self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.plaintext, serializer);
+    sse_encode_String(self.senderId, serializer);
+  }
+
+  @protected
+  void sse_encode_v_2_mls_group_info(
+      V2MlsGroupInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_String(self.status, serializer);
+    sse_encode_String(self.adminsJson, serializer);
   }
 
   @protected

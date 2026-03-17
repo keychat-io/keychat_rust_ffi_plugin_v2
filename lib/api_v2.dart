@@ -6,9 +6,9 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `identity_from_secret_hex`, `with_state`
+// These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `get_mls`, `identity_from_secret_hex`, `with_state`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PendingFriendRequest`, `V2State`, `V2`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
 
 Future<void> initV2({required String nostrPrivkeyHex}) =>
     RustLib.instance.api.crateApiV2InitV2(nostrPrivkeyHex: nostrPrivkeyHex);
@@ -85,6 +85,85 @@ Future<void> v2RegisterPeer(
 Future<String> v2ResolveSendAddress({required String peerSignalId}) =>
     RustLib.instance.api
         .crateApiV2V2ResolveSendAddress(peerSignalId: peerSignalId);
+
+/// Initialize MLS subsystem. Creates MlsParticipant from identity npub.
+Future<void> v2MlsInit() => RustLib.instance.api.crateApiV2V2MlsInit();
+
+/// Generate a KeyPackage (base64-encoded).
+Future<String> v2MlsGenerateKeyPackage() =>
+    RustLib.instance.api.crateApiV2V2MlsGenerateKeyPackage();
+
+/// Create a new MLS group.
+Future<void> v2MlsCreateGroup(
+        {required String groupId, required String name}) =>
+    RustLib.instance.api
+        .crateApiV2V2MlsCreateGroup(groupId: groupId, name: name);
+
+/// Add members. key_packages_base64_json: JSON array of base64 KeyPackage bytes.
+Future<V2MlsAddMembersResult> v2MlsAddMembers(
+        {required String groupId, required String keyPackagesBase64Json}) =>
+    RustLib.instance.api.crateApiV2V2MlsAddMembers(
+        groupId: groupId, keyPackagesBase64Json: keyPackagesBase64Json);
+
+/// Join a group via Welcome (base64). Returns group_id.
+Future<String> v2MlsJoinGroup({required String welcomeBase64}) =>
+    RustLib.instance.api.crateApiV2V2MlsJoinGroup(welcomeBase64: welcomeBase64);
+
+/// Encrypt plaintext for MLS group. Returns ciphertext base64.
+Future<String> v2MlsEncrypt(
+        {required String groupId, required String plaintext}) =>
+    RustLib.instance.api
+        .crateApiV2V2MlsEncrypt(groupId: groupId, plaintext: plaintext);
+
+/// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
+Future<V2MlsDecryptResult> v2MlsDecrypt(
+        {required String groupId, required String ciphertextBase64}) =>
+    RustLib.instance.api.crateApiV2V2MlsDecrypt(
+        groupId: groupId, ciphertextBase64: ciphertextBase64);
+
+/// Remove members by nostr ID (JSON array). Returns commit base64.
+Future<String> v2MlsRemoveMembers(
+        {required String groupId, required String memberIdsJson}) =>
+    RustLib.instance.api.crateApiV2V2MlsRemoveMembers(
+        groupId: groupId, memberIdsJson: memberIdsJson);
+
+/// Self-update (key rotation). Returns commit base64.
+Future<String> v2MlsSelfUpdate({required String groupId}) =>
+    RustLib.instance.api.crateApiV2V2MlsSelfUpdate(groupId: groupId);
+
+/// Leave a group. Returns proposal base64.
+Future<String> v2MlsLeaveGroup({required String groupId}) =>
+    RustLib.instance.api.crateApiV2V2MlsLeaveGroup(groupId: groupId);
+
+/// Process incoming MLS Commit (base64).
+Future<void> v2MlsProcessCommit(
+        {required String groupId, required String commitBase64}) =>
+    RustLib.instance.api.crateApiV2V2MlsProcessCommit(
+        groupId: groupId, commitBase64: commitBase64);
+
+/// Derive shared MLS temp inbox address.
+Future<String> v2MlsDeriveTempInbox({required String groupId}) =>
+    RustLib.instance.api.crateApiV2V2MlsDeriveTempInbox(groupId: groupId);
+
+/// List group members (nostr IDs).
+Future<List<String>> v2MlsGroupMembers({required String groupId}) =>
+    RustLib.instance.api.crateApiV2V2MlsGroupMembers(groupId: groupId);
+
+/// Update group context. Returns commit base64.
+Future<String> v2MlsUpdateGroup(
+        {required String groupId,
+        String? name,
+        String? status,
+        String? adminPubkeysJson}) =>
+    RustLib.instance.api.crateApiV2V2MlsUpdateGroup(
+        groupId: groupId,
+        name: name,
+        status: status,
+        adminPubkeysJson: adminPubkeysJson);
+
+/// Get group info.
+Future<V2MlsGroupInfo> v2MlsGroupInfo({required String groupId}) =>
+    RustLib.instance.api.crateApiV2V2MlsGroupInfo(groupId: groupId);
 
 class V2AcceptResult {
   final String eventJson;
@@ -265,6 +344,72 @@ class V2IncomingFriendRequest {
           signalKyberPrekeySignature == other.signalKyberPrekeySignature &&
           globalSign == other.globalSign &&
           payloadJson == other.payloadJson;
+}
+
+class V2MlsAddMembersResult {
+  final String commitBase64;
+  final String welcomeBase64;
+
+  const V2MlsAddMembersResult({
+    required this.commitBase64,
+    required this.welcomeBase64,
+  });
+
+  @override
+  int get hashCode => commitBase64.hashCode ^ welcomeBase64.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is V2MlsAddMembersResult &&
+          runtimeType == other.runtimeType &&
+          commitBase64 == other.commitBase64 &&
+          welcomeBase64 == other.welcomeBase64;
+}
+
+class V2MlsDecryptResult {
+  final String plaintext;
+  final String senderId;
+
+  const V2MlsDecryptResult({
+    required this.plaintext,
+    required this.senderId,
+  });
+
+  @override
+  int get hashCode => plaintext.hashCode ^ senderId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is V2MlsDecryptResult &&
+          runtimeType == other.runtimeType &&
+          plaintext == other.plaintext &&
+          senderId == other.senderId;
+}
+
+class V2MlsGroupInfo {
+  final String name;
+  final String status;
+  final String adminsJson;
+
+  const V2MlsGroupInfo({
+    required this.name,
+    required this.status,
+    required this.adminsJson,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ status.hashCode ^ adminsJson.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is V2MlsGroupInfo &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          status == other.status &&
+          adminsJson == other.adminsJson;
 }
 
 class V2ParsedMessage {
