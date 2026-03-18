@@ -6,493 +6,365 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `get_mls`, `identity_from_secret_hex`, `with_state`
+
+            // These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `get_mls`, `identity_from_secret_hex`, `persist_address_state`, `reconstruct_keys`, `save_keys_to_db`, `save_pending_keys_to_db`, `with_state`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PendingFriendRequest`, `V2State`, `V2`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
 
-Future<void> initV2({required String nostrPrivkeyHex}) =>
-    RustLib.instance.api.crateApiV2InitV2(nostrPrivkeyHex: nostrPrivkeyHex);
 
-Future<V2FriendRequestResult> v2CreateFriendRequest({
-  required String peerNpub,
-  required String displayName,
-}) => RustLib.instance.api.crateApiV2V2CreateFriendRequest(
-  peerNpub: peerNpub,
-  displayName: displayName,
-);
+            Future<void>  initV2({required String nostrPrivkeyHex , required String dbPath , required String dbKey , required int deviceId }) => RustLib.instance.api.crateApiV2InitV2(nostrPrivkeyHex: nostrPrivkeyHex, dbPath: dbPath, dbKey: dbKey, deviceId: deviceId);
 
-Future<V2IncomingFriendRequest> v2ReceiveFriendRequest({
-  required String eventJson,
-}) =>
-    RustLib.instance.api.crateApiV2V2ReceiveFriendRequest(eventJson: eventJson);
+Future<V2FriendRequestResult>  createFriendRequest({required String peerNpub , required String displayName }) => RustLib.instance.api.crateApiV2CreateFriendRequest(peerNpub: peerNpub, displayName: displayName);
 
-Future<V2AcceptResult> v2AcceptFriendRequest({
-  required String eventJson,
-  required String myDisplayName,
-}) => RustLib.instance.api.crateApiV2V2AcceptFriendRequest(
-  eventJson: eventJson,
-  myDisplayName: myDisplayName,
-);
+Future<V2IncomingFriendRequest>  receiveFriendRequest({required String eventJson }) => RustLib.instance.api.crateApiV2ReceiveFriendRequest(eventJson: eventJson);
 
-Future<V2EncryptResult> v2Encrypt({
-  required String peerSignalId,
-  required String plaintext,
-}) => RustLib.instance.api.crateApiV2V2Encrypt(
-  peerSignalId: peerSignalId,
-  plaintext: plaintext,
-);
+Future<V2AcceptResult>  acceptFriendRequest({required String eventJson , required String myDisplayName }) => RustLib.instance.api.crateApiV2AcceptFriendRequest(eventJson: eventJson, myDisplayName: myDisplayName);
 
-Future<V2DecryptResult> v2Decrypt({
-  required String peerSignalId,
-  required String ciphertextBase64,
-}) => RustLib.instance.api.crateApiV2V2Decrypt(
-  peerSignalId: peerSignalId,
-  ciphertextBase64: ciphertextBase64,
-);
+Future<V2EncryptResult>  encrypt({required String peerSignalId , required String plaintext , required int remoteDeviceId }) => RustLib.instance.api.crateApiV2Encrypt(peerSignalId: peerSignalId, plaintext: plaintext, remoteDeviceId: remoteDeviceId);
 
-Future<String> v2WrapEvent({
-  required String innerContent,
-  required String receiverNpub,
-}) => RustLib.instance.api.crateApiV2V2WrapEvent(
-  innerContent: innerContent,
-  receiverNpub: receiverNpub,
-);
+Future<V2DecryptResult>  decrypt({required String peerSignalId , required String ciphertextBase64 , required int remoteDeviceId }) => RustLib.instance.api.crateApiV2Decrypt(peerSignalId: peerSignalId, ciphertextBase64: ciphertextBase64, remoteDeviceId: remoteDeviceId);
 
-Future<V2UnwrappedEvent> v2UnwrapEvent({required String eventJson}) =>
-    RustLib.instance.api.crateApiV2V2UnwrapEvent(eventJson: eventJson);
+Future<String>  wrapEvent({required String innerContent , required String receiverNpub }) => RustLib.instance.api.crateApiV2WrapEvent(innerContent: innerContent, receiverNpub: receiverNpub);
 
-Future<String> v2FetchRelayFees({required String relayUrl}) =>
-    RustLib.instance.api.crateApiV2V2FetchRelayFees(relayUrl: relayUrl);
+Future<V2UnwrappedEvent>  unwrapEvent({required String eventJson }) => RustLib.instance.api.crateApiV2UnwrapEvent(eventJson: eventJson);
 
-Future<String> v2StampEvent({
-  required String eventJson,
-  required String cashuToken,
-}) => RustLib.instance.api.crateApiV2V2StampEvent(
-  eventJson: eventJson,
-  cashuToken: cashuToken,
-);
+Future<String>  fetchRelayFees({required String relayUrl }) => RustLib.instance.api.crateApiV2FetchRelayFees(relayUrl: relayUrl);
 
-Future<String> v2DeriveReceivingAddress({
-  required String privateKeyHex,
-  required String publicKeyHex,
-}) => RustLib.instance.api.crateApiV2V2DeriveReceivingAddress(
-  privateKeyHex: privateKeyHex,
-  publicKeyHex: publicKeyHex,
-);
+Future<String>  stampEvent({required String eventJson , required String cashuToken }) => RustLib.instance.api.crateApiV2StampEvent(eventJson: eventJson, cashuToken: cashuToken);
 
-Future<List<String>> v2GetAllReceivingAddresses({
-  required String peerSignalId,
-}) => RustLib.instance.api.crateApiV2V2GetAllReceivingAddresses(
-  peerSignalId: peerSignalId,
-);
+Future<String>  deriveReceivingAddress({required String privateKeyHex , required String publicKeyHex }) => RustLib.instance.api.crateApiV2DeriveReceivingAddress(privateKeyHex: privateKeyHex, publicKeyHex: publicKeyHex);
 
-Future<String> v2BuildTextMessage({required String text}) =>
-    RustLib.instance.api.crateApiV2V2BuildTextMessage(text: text);
+Future<List<String>>  getAllReceivingAddresses({required String peerSignalId }) => RustLib.instance.api.crateApiV2GetAllReceivingAddresses(peerSignalId: peerSignalId);
 
-Future<String> v2BuildFriendRequestMessage({required String payloadJson}) =>
-    RustLib.instance.api.crateApiV2V2BuildFriendRequestMessage(
-      payloadJson: payloadJson,
-    );
+Future<String>  buildTextMessage({required String text }) => RustLib.instance.api.crateApiV2BuildTextMessage(text: text);
 
-Future<V2ParsedMessage> v2ParseMessage({required String json}) =>
-    RustLib.instance.api.crateApiV2V2ParseMessage(json: json);
+Future<String>  buildFriendRequestMessage({required String payloadJson }) => RustLib.instance.api.crateApiV2BuildFriendRequestMessage(payloadJson: payloadJson);
 
-Future<void> v2RegisterPeer({
-  required String peerSignalId,
-  required String peerNostrPubkey,
-  String? firstInbox,
-}) => RustLib.instance.api.crateApiV2V2RegisterPeer(
-  peerSignalId: peerSignalId,
-  peerNostrPubkey: peerNostrPubkey,
-  firstInbox: firstInbox,
-);
+Future<V2ParsedMessage>  parseMessage({required String json }) => RustLib.instance.api.crateApiV2ParseMessage(json: json);
 
-Future<String> v2ResolveSendAddress({required String peerSignalId}) => RustLib
-    .instance
-    .api
-    .crateApiV2V2ResolveSendAddress(peerSignalId: peerSignalId);
+Future<void>  registerPeer({required String peerSignalId , required String peerNostrPubkey , String? firstInbox }) => RustLib.instance.api.crateApiV2RegisterPeer(peerSignalId: peerSignalId, peerNostrPubkey: peerNostrPubkey, firstInbox: firstInbox);
 
-/// Initialize MLS subsystem. Creates MlsParticipant from identity npub.
-Future<void> v2MlsInit() => RustLib.instance.api.crateApiV2V2MlsInit();
+Future<String>  resolveSendAddress({required String peerSignalId }) => RustLib.instance.api.crateApiV2ResolveSendAddress(peerSignalId: peerSignalId);
+
+/// List all known peers from DB.
+Future<List<String>>  listPeers() => RustLib.instance.api.crateApiV2ListPeers();
+
+/// Check if we have a session with a peer.
+Future<bool>  hasPeerSession({required String peerSignalId }) => RustLib.instance.api.crateApiV2HasPeerSession(peerSignalId: peerSignalId);
+
+/// Delete a peer and all associated state.
+Future<void>  deletePeer({required String peerSignalId }) => RustLib.instance.api.crateApiV2DeletePeer(peerSignalId: peerSignalId);
+
+/// Check if an event was already processed (deduplication).
+Future<bool>  isEventProcessed({required String eventId }) => RustLib.instance.api.crateApiV2IsEventProcessed(eventId: eventId);
+
+/// Mark an event as processed.
+Future<void>  markEventProcessed({required String eventId }) => RustLib.instance.api.crateApiV2MarkEventProcessed(eventId: eventId);
+
+/// Get the current device ID.
+Future<int>  getDeviceId() => RustLib.instance.api.crateApiV2GetDeviceId();
+
+/// Initialize MLS subsystem.
+Future<void>  mlsInit() => RustLib.instance.api.crateApiV2MlsInit();
 
 /// Generate a KeyPackage (base64-encoded).
-Future<String> v2MlsGenerateKeyPackage() =>
-    RustLib.instance.api.crateApiV2V2MlsGenerateKeyPackage();
+Future<String>  mlsGenerateKeyPackage() => RustLib.instance.api.crateApiV2MlsGenerateKeyPackage();
 
 /// Create a new MLS group.
-Future<void> v2MlsCreateGroup({
-  required String groupId,
-  required String name,
-}) => RustLib.instance.api.crateApiV2V2MlsCreateGroup(
-  groupId: groupId,
-  name: name,
-);
+Future<void>  mlsCreateGroup({required String groupId , required String name }) => RustLib.instance.api.crateApiV2MlsCreateGroup(groupId: groupId, name: name);
 
 /// Add members. key_packages_base64_json: JSON array of base64 KeyPackage bytes.
-Future<V2MlsAddMembersResult> v2MlsAddMembers({
-  required String groupId,
-  required String keyPackagesBase64Json,
-}) => RustLib.instance.api.crateApiV2V2MlsAddMembers(
-  groupId: groupId,
-  keyPackagesBase64Json: keyPackagesBase64Json,
-);
+Future<V2MlsAddMembersResult>  mlsAddMembers({required String groupId , required String keyPackagesBase64Json }) => RustLib.instance.api.crateApiV2MlsAddMembers(groupId: groupId, keyPackagesBase64Json: keyPackagesBase64Json);
 
 /// Join a group via Welcome (base64). Returns group_id.
-Future<String> v2MlsJoinGroup({required String welcomeBase64}) =>
-    RustLib.instance.api.crateApiV2V2MlsJoinGroup(welcomeBase64: welcomeBase64);
+Future<String>  mlsJoinGroup({required String welcomeBase64 }) => RustLib.instance.api.crateApiV2MlsJoinGroup(welcomeBase64: welcomeBase64);
 
 /// Encrypt plaintext for MLS group. Returns ciphertext base64.
-Future<String> v2MlsEncrypt({
-  required String groupId,
-  required String plaintext,
-}) => RustLib.instance.api.crateApiV2V2MlsEncrypt(
-  groupId: groupId,
-  plaintext: plaintext,
-);
+Future<String>  mlsEncrypt({required String groupId , required String plaintext }) => RustLib.instance.api.crateApiV2MlsEncrypt(groupId: groupId, plaintext: plaintext);
 
 /// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
-Future<V2MlsDecryptResult> v2MlsDecrypt({
-  required String groupId,
-  required String ciphertextBase64,
-}) => RustLib.instance.api.crateApiV2V2MlsDecrypt(
-  groupId: groupId,
-  ciphertextBase64: ciphertextBase64,
-);
+Future<V2MlsDecryptResult>  mlsDecrypt({required String groupId , required String ciphertextBase64 }) => RustLib.instance.api.crateApiV2MlsDecrypt(groupId: groupId, ciphertextBase64: ciphertextBase64);
 
 /// Remove members by nostr ID (JSON array). Returns commit base64.
-Future<String> v2MlsRemoveMembers({
-  required String groupId,
-  required String memberIdsJson,
-}) => RustLib.instance.api.crateApiV2V2MlsRemoveMembers(
-  groupId: groupId,
-  memberIdsJson: memberIdsJson,
-);
+Future<String>  mlsRemoveMembers({required String groupId , required String memberIdsJson }) => RustLib.instance.api.crateApiV2MlsRemoveMembers(groupId: groupId, memberIdsJson: memberIdsJson);
 
 /// Self-update (key rotation). Returns commit base64.
-Future<String> v2MlsSelfUpdate({required String groupId}) =>
-    RustLib.instance.api.crateApiV2V2MlsSelfUpdate(groupId: groupId);
+Future<String>  mlsSelfUpdate({required String groupId }) => RustLib.instance.api.crateApiV2MlsSelfUpdate(groupId: groupId);
 
 /// Leave a group. Returns proposal base64.
-Future<String> v2MlsLeaveGroup({required String groupId}) =>
-    RustLib.instance.api.crateApiV2V2MlsLeaveGroup(groupId: groupId);
+Future<String>  mlsLeaveGroup({required String groupId }) => RustLib.instance.api.crateApiV2MlsLeaveGroup(groupId: groupId);
 
 /// Process incoming MLS Commit (base64).
-Future<void> v2MlsProcessCommit({
-  required String groupId,
-  required String commitBase64,
-}) => RustLib.instance.api.crateApiV2V2MlsProcessCommit(
-  groupId: groupId,
-  commitBase64: commitBase64,
-);
+Future<void>  mlsProcessCommit({required String groupId , required String commitBase64 }) => RustLib.instance.api.crateApiV2MlsProcessCommit(groupId: groupId, commitBase64: commitBase64);
 
 /// Derive shared MLS temp inbox address.
-Future<String> v2MlsDeriveTempInbox({required String groupId}) =>
-    RustLib.instance.api.crateApiV2V2MlsDeriveTempInbox(groupId: groupId);
+Future<String>  mlsDeriveTempInbox({required String groupId }) => RustLib.instance.api.crateApiV2MlsDeriveTempInbox(groupId: groupId);
 
 /// List group members (nostr IDs).
-Future<List<String>> v2MlsGroupMembers({required String groupId}) =>
-    RustLib.instance.api.crateApiV2V2MlsGroupMembers(groupId: groupId);
+Future<List<String>>  mlsGroupMembers({required String groupId }) => RustLib.instance.api.crateApiV2MlsGroupMembers(groupId: groupId);
 
 /// Update group context. Returns commit base64.
-Future<String> v2MlsUpdateGroup({
-  required String groupId,
-  String? name,
-  String? status,
-  String? adminPubkeysJson,
-}) => RustLib.instance.api.crateApiV2V2MlsUpdateGroup(
-  groupId: groupId,
-  name: name,
-  status: status,
-  adminPubkeysJson: adminPubkeysJson,
-);
+Future<String>  mlsUpdateGroup({required String groupId , String? name , String? status , String? adminPubkeysJson }) => RustLib.instance.api.crateApiV2MlsUpdateGroup(groupId: groupId, name: name, status: status, adminPubkeysJson: adminPubkeysJson);
 
 /// Get group info.
-Future<V2MlsGroupInfo> v2MlsGroupInfo({required String groupId}) =>
-    RustLib.instance.api.crateApiV2V2MlsGroupInfo(groupId: groupId);
+Future<V2MlsGroupInfo>  mlsGroupInfo({required String groupId }) => RustLib.instance.api.crateApiV2MlsGroupInfo(groupId: groupId);
 
-class V2AcceptResult {
-  final String eventJson;
-  final String peerSignalIdentity;
+            class V2AcceptResult  {
+                final String eventJson;
+final String peerSignalIdentity;
 
-  const V2AcceptResult({
-    required this.eventJson,
-    required this.peerSignalIdentity,
-  });
+                const V2AcceptResult({required this.eventJson ,required this.peerSignalIdentity ,});
 
-  @override
-  int get hashCode => eventJson.hashCode ^ peerSignalIdentity.hashCode;
+                
+                
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2AcceptResult &&
-          runtimeType == other.runtimeType &&
-          eventJson == other.eventJson &&
-          peerSignalIdentity == other.peerSignalIdentity;
-}
+                
+        @override
+        int get hashCode => eventJson.hashCode^peerSignalIdentity.hashCode;
+        
 
-class V2DecryptResult {
-  final String plaintext;
-  final String senderAddress;
-  final List<String> newReceivingAddresses;
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2AcceptResult &&
+                runtimeType == other.runtimeType
+                && eventJson == other.eventJson&& peerSignalIdentity == other.peerSignalIdentity;
+        
+            }
 
-  const V2DecryptResult({
-    required this.plaintext,
-    required this.senderAddress,
-    required this.newReceivingAddresses,
-  });
+class V2DecryptResult  {
+                final String plaintext;
+final String senderAddress;
+final List<String> newReceivingAddresses;
 
-  @override
-  int get hashCode =>
-      plaintext.hashCode ^
-      senderAddress.hashCode ^
-      newReceivingAddresses.hashCode;
+                const V2DecryptResult({required this.plaintext ,required this.senderAddress ,required this.newReceivingAddresses ,});
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2DecryptResult &&
-          runtimeType == other.runtimeType &&
-          plaintext == other.plaintext &&
-          senderAddress == other.senderAddress &&
-          newReceivingAddresses == other.newReceivingAddresses;
-}
+                
+                
 
-class V2EncryptResult {
-  final String ciphertextBase64;
-  final String senderAddress;
-  final List<String> newReceivingAddresses;
+                
+        @override
+        int get hashCode => plaintext.hashCode^senderAddress.hashCode^newReceivingAddresses.hashCode;
+        
 
-  const V2EncryptResult({
-    required this.ciphertextBase64,
-    required this.senderAddress,
-    required this.newReceivingAddresses,
-  });
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2DecryptResult &&
+                runtimeType == other.runtimeType
+                && plaintext == other.plaintext&& senderAddress == other.senderAddress&& newReceivingAddresses == other.newReceivingAddresses;
+        
+            }
 
-  @override
-  int get hashCode =>
-      ciphertextBase64.hashCode ^
-      senderAddress.hashCode ^
-      newReceivingAddresses.hashCode;
+class V2EncryptResult  {
+                final String ciphertextBase64;
+final String senderAddress;
+final List<String> newReceivingAddresses;
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2EncryptResult &&
-          runtimeType == other.runtimeType &&
-          ciphertextBase64 == other.ciphertextBase64 &&
-          senderAddress == other.senderAddress &&
-          newReceivingAddresses == other.newReceivingAddresses;
-}
+                const V2EncryptResult({required this.ciphertextBase64 ,required this.senderAddress ,required this.newReceivingAddresses ,});
 
-class V2FriendRequestResult {
-  final String eventJson;
-  final String firstInboxPubkey;
-  final String firstInboxSecret;
-  final String signalIdentityHex;
+                
+                
 
-  const V2FriendRequestResult({
-    required this.eventJson,
-    required this.firstInboxPubkey,
-    required this.firstInboxSecret,
-    required this.signalIdentityHex,
-  });
+                
+        @override
+        int get hashCode => ciphertextBase64.hashCode^senderAddress.hashCode^newReceivingAddresses.hashCode;
+        
 
-  @override
-  int get hashCode =>
-      eventJson.hashCode ^
-      firstInboxPubkey.hashCode ^
-      firstInboxSecret.hashCode ^
-      signalIdentityHex.hashCode;
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2EncryptResult &&
+                runtimeType == other.runtimeType
+                && ciphertextBase64 == other.ciphertextBase64&& senderAddress == other.senderAddress&& newReceivingAddresses == other.newReceivingAddresses;
+        
+            }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2FriendRequestResult &&
-          runtimeType == other.runtimeType &&
-          eventJson == other.eventJson &&
-          firstInboxPubkey == other.firstInboxPubkey &&
-          firstInboxSecret == other.firstInboxSecret &&
-          signalIdentityHex == other.signalIdentityHex;
-}
+class V2FriendRequestResult  {
+                final String eventJson;
+final String firstInboxPubkey;
+final String firstInboxSecret;
+final String signalIdentityHex;
 
-class V2IncomingFriendRequest {
-  final String senderNpub;
-  final String senderName;
-  final String signalIdentityKey;
-  final String firstInbox;
-  final String deviceId;
-  final int signalSignedPrekeyId;
-  final String signalSignedPrekey;
-  final String signalSignedPrekeySignature;
-  final int signalOneTimePrekeyId;
-  final String signalOneTimePrekey;
-  final int signalKyberPrekeyId;
-  final String signalKyberPrekey;
-  final String signalKyberPrekeySignature;
-  final String globalSign;
-  final String payloadJson;
+                const V2FriendRequestResult({required this.eventJson ,required this.firstInboxPubkey ,required this.firstInboxSecret ,required this.signalIdentityHex ,});
 
-  const V2IncomingFriendRequest({
-    required this.senderNpub,
-    required this.senderName,
-    required this.signalIdentityKey,
-    required this.firstInbox,
-    required this.deviceId,
-    required this.signalSignedPrekeyId,
-    required this.signalSignedPrekey,
-    required this.signalSignedPrekeySignature,
-    required this.signalOneTimePrekeyId,
-    required this.signalOneTimePrekey,
-    required this.signalKyberPrekeyId,
-    required this.signalKyberPrekey,
-    required this.signalKyberPrekeySignature,
-    required this.globalSign,
-    required this.payloadJson,
-  });
+                
+                
 
-  @override
-  int get hashCode =>
-      senderNpub.hashCode ^
-      senderName.hashCode ^
-      signalIdentityKey.hashCode ^
-      firstInbox.hashCode ^
-      deviceId.hashCode ^
-      signalSignedPrekeyId.hashCode ^
-      signalSignedPrekey.hashCode ^
-      signalSignedPrekeySignature.hashCode ^
-      signalOneTimePrekeyId.hashCode ^
-      signalOneTimePrekey.hashCode ^
-      signalKyberPrekeyId.hashCode ^
-      signalKyberPrekey.hashCode ^
-      signalKyberPrekeySignature.hashCode ^
-      globalSign.hashCode ^
-      payloadJson.hashCode;
+                
+        @override
+        int get hashCode => eventJson.hashCode^firstInboxPubkey.hashCode^firstInboxSecret.hashCode^signalIdentityHex.hashCode;
+        
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2IncomingFriendRequest &&
-          runtimeType == other.runtimeType &&
-          senderNpub == other.senderNpub &&
-          senderName == other.senderName &&
-          signalIdentityKey == other.signalIdentityKey &&
-          firstInbox == other.firstInbox &&
-          deviceId == other.deviceId &&
-          signalSignedPrekeyId == other.signalSignedPrekeyId &&
-          signalSignedPrekey == other.signalSignedPrekey &&
-          signalSignedPrekeySignature == other.signalSignedPrekeySignature &&
-          signalOneTimePrekeyId == other.signalOneTimePrekeyId &&
-          signalOneTimePrekey == other.signalOneTimePrekey &&
-          signalKyberPrekeyId == other.signalKyberPrekeyId &&
-          signalKyberPrekey == other.signalKyberPrekey &&
-          signalKyberPrekeySignature == other.signalKyberPrekeySignature &&
-          globalSign == other.globalSign &&
-          payloadJson == other.payloadJson;
-}
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2FriendRequestResult &&
+                runtimeType == other.runtimeType
+                && eventJson == other.eventJson&& firstInboxPubkey == other.firstInboxPubkey&& firstInboxSecret == other.firstInboxSecret&& signalIdentityHex == other.signalIdentityHex;
+        
+            }
 
-class V2MlsAddMembersResult {
-  final String commitBase64;
-  final String welcomeBase64;
+class V2IncomingFriendRequest  {
+                final String senderNpub;
+final String senderName;
+final String signalIdentityKey;
+final String firstInbox;
+final String deviceId;
+final int signalSignedPrekeyId;
+final String signalSignedPrekey;
+final String signalSignedPrekeySignature;
+final int signalOneTimePrekeyId;
+final String signalOneTimePrekey;
+final int signalKyberPrekeyId;
+final String signalKyberPrekey;
+final String signalKyberPrekeySignature;
+final String globalSign;
+final String payloadJson;
 
-  const V2MlsAddMembersResult({
-    required this.commitBase64,
-    required this.welcomeBase64,
-  });
+                const V2IncomingFriendRequest({required this.senderNpub ,required this.senderName ,required this.signalIdentityKey ,required this.firstInbox ,required this.deviceId ,required this.signalSignedPrekeyId ,required this.signalSignedPrekey ,required this.signalSignedPrekeySignature ,required this.signalOneTimePrekeyId ,required this.signalOneTimePrekey ,required this.signalKyberPrekeyId ,required this.signalKyberPrekey ,required this.signalKyberPrekeySignature ,required this.globalSign ,required this.payloadJson ,});
 
-  @override
-  int get hashCode => commitBase64.hashCode ^ welcomeBase64.hashCode;
+                
+                
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2MlsAddMembersResult &&
-          runtimeType == other.runtimeType &&
-          commitBase64 == other.commitBase64 &&
-          welcomeBase64 == other.welcomeBase64;
-}
+                
+        @override
+        int get hashCode => senderNpub.hashCode^senderName.hashCode^signalIdentityKey.hashCode^firstInbox.hashCode^deviceId.hashCode^signalSignedPrekeyId.hashCode^signalSignedPrekey.hashCode^signalSignedPrekeySignature.hashCode^signalOneTimePrekeyId.hashCode^signalOneTimePrekey.hashCode^signalKyberPrekeyId.hashCode^signalKyberPrekey.hashCode^signalKyberPrekeySignature.hashCode^globalSign.hashCode^payloadJson.hashCode;
+        
 
-class V2MlsDecryptResult {
-  final String plaintext;
-  final String senderId;
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2IncomingFriendRequest &&
+                runtimeType == other.runtimeType
+                && senderNpub == other.senderNpub&& senderName == other.senderName&& signalIdentityKey == other.signalIdentityKey&& firstInbox == other.firstInbox&& deviceId == other.deviceId&& signalSignedPrekeyId == other.signalSignedPrekeyId&& signalSignedPrekey == other.signalSignedPrekey&& signalSignedPrekeySignature == other.signalSignedPrekeySignature&& signalOneTimePrekeyId == other.signalOneTimePrekeyId&& signalOneTimePrekey == other.signalOneTimePrekey&& signalKyberPrekeyId == other.signalKyberPrekeyId&& signalKyberPrekey == other.signalKyberPrekey&& signalKyberPrekeySignature == other.signalKyberPrekeySignature&& globalSign == other.globalSign&& payloadJson == other.payloadJson;
+        
+            }
 
-  const V2MlsDecryptResult({required this.plaintext, required this.senderId});
+class V2MlsAddMembersResult  {
+                final String commitBase64;
+final String welcomeBase64;
 
-  @override
-  int get hashCode => plaintext.hashCode ^ senderId.hashCode;
+                const V2MlsAddMembersResult({required this.commitBase64 ,required this.welcomeBase64 ,});
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2MlsDecryptResult &&
-          runtimeType == other.runtimeType &&
-          plaintext == other.plaintext &&
-          senderId == other.senderId;
-}
+                
+                
 
-class V2MlsGroupInfo {
-  final String name;
-  final String status;
-  final String adminsJson;
+                
+        @override
+        int get hashCode => commitBase64.hashCode^welcomeBase64.hashCode;
+        
 
-  const V2MlsGroupInfo({
-    required this.name,
-    required this.status,
-    required this.adminsJson,
-  });
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2MlsAddMembersResult &&
+                runtimeType == other.runtimeType
+                && commitBase64 == other.commitBase64&& welcomeBase64 == other.welcomeBase64;
+        
+            }
 
-  @override
-  int get hashCode => name.hashCode ^ status.hashCode ^ adminsJson.hashCode;
+class V2MlsDecryptResult  {
+                final String plaintext;
+final String senderId;
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2MlsGroupInfo &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          status == other.status &&
-          adminsJson == other.adminsJson;
-}
+                const V2MlsDecryptResult({required this.plaintext ,required this.senderId ,});
 
-class V2ParsedMessage {
-  final String kind;
-  final String contentJson;
+                
+                
 
-  const V2ParsedMessage({required this.kind, required this.contentJson});
+                
+        @override
+        int get hashCode => plaintext.hashCode^senderId.hashCode;
+        
 
-  @override
-  int get hashCode => kind.hashCode ^ contentJson.hashCode;
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2MlsDecryptResult &&
+                runtimeType == other.runtimeType
+                && plaintext == other.plaintext&& senderId == other.senderId;
+        
+            }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2ParsedMessage &&
-          runtimeType == other.runtimeType &&
-          kind == other.kind &&
-          contentJson == other.contentJson;
-}
+class V2MlsGroupInfo  {
+                final String name;
+final String status;
+final String adminsJson;
 
-class V2UnwrappedEvent {
-  final String senderNpub;
-  final String content;
-  final BigInt timestamp;
+                const V2MlsGroupInfo({required this.name ,required this.status ,required this.adminsJson ,});
 
-  const V2UnwrappedEvent({
-    required this.senderNpub,
-    required this.content,
-    required this.timestamp,
-  });
+                
+                
 
-  @override
-  int get hashCode =>
-      senderNpub.hashCode ^ content.hashCode ^ timestamp.hashCode;
+                
+        @override
+        int get hashCode => name.hashCode^status.hashCode^adminsJson.hashCode;
+        
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is V2UnwrappedEvent &&
-          runtimeType == other.runtimeType &&
-          senderNpub == other.senderNpub &&
-          content == other.content &&
-          timestamp == other.timestamp;
-}
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2MlsGroupInfo &&
+                runtimeType == other.runtimeType
+                && name == other.name&& status == other.status&& adminsJson == other.adminsJson;
+        
+            }
+
+class V2ParsedMessage  {
+                final String kind;
+final String contentJson;
+
+                const V2ParsedMessage({required this.kind ,required this.contentJson ,});
+
+                
+                
+
+                
+        @override
+        int get hashCode => kind.hashCode^contentJson.hashCode;
+        
+
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2ParsedMessage &&
+                runtimeType == other.runtimeType
+                && kind == other.kind&& contentJson == other.contentJson;
+        
+            }
+
+class V2UnwrappedEvent  {
+                final String senderNpub;
+final String content;
+final BigInt timestamp;
+
+                const V2UnwrappedEvent({required this.senderNpub ,required this.content ,required this.timestamp ,});
+
+                
+                
+
+                
+        @override
+        int get hashCode => senderNpub.hashCode^content.hashCode^timestamp.hashCode;
+        
+
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is V2UnwrappedEvent &&
+                runtimeType == other.runtimeType
+                && senderNpub == other.senderNpub&& content == other.content&& timestamp == other.timestamp;
+        
+            }
+            

@@ -10,253 +10,162 @@ import 'dart:ffi' as ffi;
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
-abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
-  RustLibApiImplPlatform({
-    required super.handler,
-    required super.wire,
-    required super.generalizedFrbRustBinding,
-    required super.portManager,
-  });
 
-  @protected
-  AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  String dco_decode_String(dynamic raw);
 
-  @protected
-  List<String> dco_decode_list_String(dynamic raw);
+                abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
+                  RustLibApiImplPlatform({
+                    required super.handler,
+                    required super.wire,
+                    required super.generalizedFrbRustBinding,
+                    required super.portManager,
+                  });
 
-  @protected
-  Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+                  
 
-  @protected
-  String? dco_decode_opt_String(dynamic raw);
+                  @protected AnyhowException dco_decode_AnyhowException(dynamic raw);
 
-  @protected
-  int dco_decode_u_32(dynamic raw);
+@protected String dco_decode_String(dynamic raw);
 
-  @protected
-  BigInt dco_decode_u_64(dynamic raw);
+@protected bool dco_decode_bool(dynamic raw);
 
-  @protected
-  int dco_decode_u_8(dynamic raw);
+@protected List<String> dco_decode_list_String(dynamic raw);
 
-  @protected
-  void dco_decode_unit(dynamic raw);
+@protected Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
-  @protected
-  V2AcceptResult dco_decode_v_2_accept_result(dynamic raw);
+@protected String? dco_decode_opt_String(dynamic raw);
 
-  @protected
-  V2DecryptResult dco_decode_v_2_decrypt_result(dynamic raw);
+@protected int dco_decode_u_32(dynamic raw);
 
-  @protected
-  V2EncryptResult dco_decode_v_2_encrypt_result(dynamic raw);
+@protected BigInt dco_decode_u_64(dynamic raw);
 
-  @protected
-  V2FriendRequestResult dco_decode_v_2_friend_request_result(dynamic raw);
+@protected int dco_decode_u_8(dynamic raw);
 
-  @protected
-  V2IncomingFriendRequest dco_decode_v_2_incoming_friend_request(dynamic raw);
+@protected void dco_decode_unit(dynamic raw);
 
-  @protected
-  V2MlsAddMembersResult dco_decode_v_2_mls_add_members_result(dynamic raw);
+@protected V2AcceptResult dco_decode_v_2_accept_result(dynamic raw);
 
-  @protected
-  V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw);
+@protected V2DecryptResult dco_decode_v_2_decrypt_result(dynamic raw);
 
-  @protected
-  V2MlsGroupInfo dco_decode_v_2_mls_group_info(dynamic raw);
+@protected V2EncryptResult dco_decode_v_2_encrypt_result(dynamic raw);
 
-  @protected
-  V2ParsedMessage dco_decode_v_2_parsed_message(dynamic raw);
+@protected V2FriendRequestResult dco_decode_v_2_friend_request_result(dynamic raw);
 
-  @protected
-  V2UnwrappedEvent dco_decode_v_2_unwrapped_event(dynamic raw);
+@protected V2IncomingFriendRequest dco_decode_v_2_incoming_friend_request(dynamic raw);
 
-  @protected
-  AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+@protected V2MlsAddMembersResult dco_decode_v_2_mls_add_members_result(dynamic raw);
 
-  @protected
-  String sse_decode_String(SseDeserializer deserializer);
+@protected V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw);
 
-  @protected
-  List<String> sse_decode_list_String(SseDeserializer deserializer);
+@protected V2MlsGroupInfo dco_decode_v_2_mls_group_info(dynamic raw);
 
-  @protected
-  Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+@protected V2ParsedMessage dco_decode_v_2_parsed_message(dynamic raw);
 
-  @protected
-  String? sse_decode_opt_String(SseDeserializer deserializer);
+@protected V2UnwrappedEvent dco_decode_v_2_unwrapped_event(dynamic raw);
 
-  @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
+@protected AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
-  @protected
-  BigInt sse_decode_u_64(SseDeserializer deserializer);
+@protected String sse_decode_String(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_u_8(SseDeserializer deserializer);
+@protected bool sse_decode_bool(SseDeserializer deserializer);
 
-  @protected
-  void sse_decode_unit(SseDeserializer deserializer);
+@protected List<String> sse_decode_list_String(SseDeserializer deserializer);
 
-  @protected
-  V2AcceptResult sse_decode_v_2_accept_result(SseDeserializer deserializer);
+@protected Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
-  @protected
-  V2DecryptResult sse_decode_v_2_decrypt_result(SseDeserializer deserializer);
+@protected String? sse_decode_opt_String(SseDeserializer deserializer);
 
-  @protected
-  V2EncryptResult sse_decode_v_2_encrypt_result(SseDeserializer deserializer);
+@protected int sse_decode_u_32(SseDeserializer deserializer);
 
-  @protected
-  V2FriendRequestResult sse_decode_v_2_friend_request_result(
-    SseDeserializer deserializer,
-  );
+@protected BigInt sse_decode_u_64(SseDeserializer deserializer);
 
-  @protected
-  V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(
-    SseDeserializer deserializer,
-  );
+@protected int sse_decode_u_8(SseDeserializer deserializer);
 
-  @protected
-  V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(
-    SseDeserializer deserializer,
-  );
+@protected void sse_decode_unit(SseDeserializer deserializer);
 
-  @protected
-  V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(
-    SseDeserializer deserializer,
-  );
+@protected V2AcceptResult sse_decode_v_2_accept_result(SseDeserializer deserializer);
 
-  @protected
-  V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer);
+@protected V2DecryptResult sse_decode_v_2_decrypt_result(SseDeserializer deserializer);
 
-  @protected
-  V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer);
+@protected V2EncryptResult sse_decode_v_2_encrypt_result(SseDeserializer deserializer);
 
-  @protected
-  V2UnwrappedEvent sse_decode_v_2_unwrapped_event(SseDeserializer deserializer);
+@protected V2FriendRequestResult sse_decode_v_2_friend_request_result(SseDeserializer deserializer);
 
-  @protected
-  int sse_decode_i_32(SseDeserializer deserializer);
+@protected V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(SseDeserializer deserializer);
 
-  @protected
-  bool sse_decode_bool(SseDeserializer deserializer);
+@protected V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
+@protected V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_String(String self, SseSerializer serializer);
+@protected V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+@protected V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
+@protected V2UnwrappedEvent sse_decode_v_2_unwrapped_event(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_opt_String(String? self, SseSerializer serializer);
+@protected int sse_decode_i_32(SseDeserializer deserializer);
 
-  @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
+@protected void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_u_64(BigInt self, SseSerializer serializer);
+@protected void sse_encode_String(String self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_u_8(int self, SseSerializer serializer);
+@protected void sse_encode_bool(bool self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_unit(void self, SseSerializer serializer);
+@protected void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_accept_result(
-    V2AcceptResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_decrypt_result(
-    V2DecryptResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_opt_String(String? self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_encrypt_result(
-    V2EncryptResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_u_32(int self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_friend_request_result(
-    V2FriendRequestResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_u_64(BigInt self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_incoming_friend_request(
-    V2IncomingFriendRequest self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_u_8(int self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_mls_add_members_result(
-    V2MlsAddMembersResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_unit(void self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_mls_decrypt_result(
-    V2MlsDecryptResult self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_v_2_accept_result(V2AcceptResult self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_mls_group_info(
-    V2MlsGroupInfo self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_v_2_decrypt_result(V2DecryptResult self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_parsed_message(
-    V2ParsedMessage self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_v_2_encrypt_result(V2EncryptResult self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_v_2_unwrapped_event(
-    V2UnwrappedEvent self,
-    SseSerializer serializer,
-  );
+@protected void sse_encode_v_2_friend_request_result(V2FriendRequestResult self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_i_32(int self, SseSerializer serializer);
+@protected void sse_encode_v_2_incoming_friend_request(V2IncomingFriendRequest self, SseSerializer serializer);
 
-  @protected
-  void sse_encode_bool(bool self, SseSerializer serializer);
-}
+@protected void sse_encode_v_2_mls_add_members_result(V2MlsAddMembersResult self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_mls_decrypt_result(V2MlsDecryptResult self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_mls_group_info(V2MlsGroupInfo self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_parsed_message(V2ParsedMessage self, SseSerializer serializer);
+
+@protected void sse_encode_v_2_unwrapped_event(V2UnwrappedEvent self, SseSerializer serializer);
+
+@protected void sse_encode_i_32(int self, SseSerializer serializer);
+                }
+                
+
 
 // Section: wire_class
 
-class RustLibWire implements BaseWire {
-  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-      RustLibWire(lib.ffiDynamicLibrary);
 
-  /// Holds the symbol lookup function.
-  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-  _lookup;
+        class RustLibWire implements BaseWire {
 
-  /// The symbols are looked up in [dynamicLibrary].
-  RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-    : _lookup = dynamicLibrary.lookup;
-}
+            factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
+              RustLibWire(lib.ffiDynamicLibrary);
+        
+            /// Holds the symbol lookup function.
+            final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
+                _lookup;
+  
+            /// The symbols are looked up in [dynamicLibrary].
+            RustLibWire(ffi.DynamicLibrary dynamicLibrary)
+                : _lookup = dynamicLibrary.lookup;
+
+            
+        }
+        

@@ -19,6 +19,7 @@ base64 = "0.22"
 rand = "0.8"
 uuid = { version = "1", features = ["v4"] }
 
-# libkeychat — protocol V2 engine (no cashu, no MLS — just Signal PQXDH + storage)
-libkeychat = { git = "https://github.com/keychat-io/keychat-protocol.git", branch = "main", default-features = false, features = ["storage", "mls"] }
+# libkeychat — protocol V2 engine (Signal PQXDH + SQLCipher storage + MLS)
+# libkeychat = { path = "/Users/nuannuan/project/rust/keychat-protocol/libkeychat" }
+libkeychat = { git = "https://github.com/keychat-io/keychat-protocol.git", branch = "main" }
 hex = "0.4"
