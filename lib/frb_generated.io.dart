@@ -113,19 +113,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   V2FriendRequestResult sse_decode_v_2_friend_request_result(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(
-      SseDeserializer deserializer);
+    SseDeserializer deserializer,
+  );
 
   @protected
   V2MlsGroupInfo sse_decode_v_2_mls_group_info(SseDeserializer deserializer);
@@ -144,7 +148,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer);
+    AnyhowException self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -154,7 +160,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer);
+    Uint8List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
@@ -173,43 +181,63 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_v_2_accept_result(
-      V2AcceptResult self, SseSerializer serializer);
+    V2AcceptResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_decrypt_result(
-      V2DecryptResult self, SseSerializer serializer);
+    V2DecryptResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_encrypt_result(
-      V2EncryptResult self, SseSerializer serializer);
+    V2EncryptResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_friend_request_result(
-      V2FriendRequestResult self, SseSerializer serializer);
+    V2FriendRequestResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_incoming_friend_request(
-      V2IncomingFriendRequest self, SseSerializer serializer);
+    V2IncomingFriendRequest self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_mls_add_members_result(
-      V2MlsAddMembersResult self, SseSerializer serializer);
+    V2MlsAddMembersResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_mls_decrypt_result(
-      V2MlsDecryptResult self, SseSerializer serializer);
+    V2MlsDecryptResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_mls_group_info(
-      V2MlsGroupInfo self, SseSerializer serializer);
+    V2MlsGroupInfo self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_parsed_message(
-      V2ParsedMessage self, SseSerializer serializer);
+    V2ParsedMessage self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_v_2_unwrapped_event(
-      V2UnwrappedEvent self, SseSerializer serializer);
+    V2UnwrappedEvent self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -226,9 +254,9 @@ class RustLibWire implements BaseWire {
 
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
   RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+    : _lookup = dynamicLibrary.lookup;
 }

@@ -35,12 +35,8 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   /// Initialize flutter_rust_bridge in mock mode.
   /// No libraries for FFI are loaded.
-  static void initMock({
-    required RustLibApi api,
-  }) {
-    instance.initMockImpl(
-      api: api,
-    );
+  static void initMock({required RustLibApi api}) {
+    instance.initMockImpl(api: api);
   }
 
   /// Dispose flutter_rust_bridge
@@ -72,53 +68,73 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
-    stem: 'keychat_rust_ffi_plugin_v2',
-    ioDirectory: 'rust/target/release/',
-    webPrefix: 'pkg/',
-  );
+        stem: 'keychat_rust_ffi_plugin_v2',
+        ioDirectory: 'rust/target/release/',
+        webPrefix: 'pkg/',
+      );
 }
 
 abstract class RustLibApi extends BaseApi {
   Future<void> crateApiV2InitV2({required String nostrPrivkeyHex});
 
-  Future<V2AcceptResult> crateApiV2V2AcceptFriendRequest(
-      {required String eventJson, required String myDisplayName});
+  Future<V2AcceptResult> crateApiV2V2AcceptFriendRequest({
+    required String eventJson,
+    required String myDisplayName,
+  });
 
-  Future<String> crateApiV2V2BuildFriendRequestMessage(
-      {required String payloadJson});
+  Future<String> crateApiV2V2BuildFriendRequestMessage({
+    required String payloadJson,
+  });
 
   Future<String> crateApiV2V2BuildTextMessage({required String text});
 
-  Future<V2FriendRequestResult> crateApiV2V2CreateFriendRequest(
-      {required String peerNpub, required String displayName});
+  Future<V2FriendRequestResult> crateApiV2V2CreateFriendRequest({
+    required String peerNpub,
+    required String displayName,
+  });
 
-  Future<V2DecryptResult> crateApiV2V2Decrypt(
-      {required String peerSignalId, required String ciphertextBase64});
+  Future<V2DecryptResult> crateApiV2V2Decrypt({
+    required String peerSignalId,
+    required String ciphertextBase64,
+  });
 
-  Future<String> crateApiV2V2DeriveReceivingAddress(
-      {required String privateKeyHex, required String publicKeyHex});
+  Future<String> crateApiV2V2DeriveReceivingAddress({
+    required String privateKeyHex,
+    required String publicKeyHex,
+  });
 
-  Future<V2EncryptResult> crateApiV2V2Encrypt(
-      {required String peerSignalId, required String plaintext});
+  Future<V2EncryptResult> crateApiV2V2Encrypt({
+    required String peerSignalId,
+    required String plaintext,
+  });
 
   Future<String> crateApiV2V2FetchRelayFees({required String relayUrl});
 
-  Future<List<String>> crateApiV2V2GetAllReceivingAddresses(
-      {required String peerSignalId});
+  Future<List<String>> crateApiV2V2GetAllReceivingAddresses({
+    required String peerSignalId,
+  });
 
-  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers(
-      {required String groupId, required String keyPackagesBase64Json});
+  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers({
+    required String groupId,
+    required String keyPackagesBase64Json,
+  });
 
-  Future<void> crateApiV2V2MlsCreateGroup(
-      {required String groupId, required String name});
+  Future<void> crateApiV2V2MlsCreateGroup({
+    required String groupId,
+    required String name,
+  });
 
-  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt(
-      {required String groupId, required String ciphertextBase64});
+  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt({
+    required String groupId,
+    required String ciphertextBase64,
+  });
 
   Future<String> crateApiV2V2MlsDeriveTempInbox({required String groupId});
 
-  Future<String> crateApiV2V2MlsEncrypt(
-      {required String groupId, required String plaintext});
+  Future<String> crateApiV2V2MlsEncrypt({
+    required String groupId,
+    required String plaintext,
+  });
 
   Future<String> crateApiV2V2MlsGenerateKeyPackage();
 
@@ -132,39 +148,50 @@ abstract class RustLibApi extends BaseApi {
 
   Future<String> crateApiV2V2MlsLeaveGroup({required String groupId});
 
-  Future<void> crateApiV2V2MlsProcessCommit(
-      {required String groupId, required String commitBase64});
+  Future<void> crateApiV2V2MlsProcessCommit({
+    required String groupId,
+    required String commitBase64,
+  });
 
-  Future<String> crateApiV2V2MlsRemoveMembers(
-      {required String groupId, required String memberIdsJson});
+  Future<String> crateApiV2V2MlsRemoveMembers({
+    required String groupId,
+    required String memberIdsJson,
+  });
 
   Future<String> crateApiV2V2MlsSelfUpdate({required String groupId});
 
-  Future<String> crateApiV2V2MlsUpdateGroup(
-      {required String groupId,
-      String? name,
-      String? status,
-      String? adminPubkeysJson});
+  Future<String> crateApiV2V2MlsUpdateGroup({
+    required String groupId,
+    String? name,
+    String? status,
+    String? adminPubkeysJson,
+  });
 
   Future<V2ParsedMessage> crateApiV2V2ParseMessage({required String json});
 
-  Future<V2IncomingFriendRequest> crateApiV2V2ReceiveFriendRequest(
-      {required String eventJson});
+  Future<V2IncomingFriendRequest> crateApiV2V2ReceiveFriendRequest({
+    required String eventJson,
+  });
 
-  Future<void> crateApiV2V2RegisterPeer(
-      {required String peerSignalId,
-      required String peerNostrPubkey,
-      String? firstInbox});
+  Future<void> crateApiV2V2RegisterPeer({
+    required String peerSignalId,
+    required String peerNostrPubkey,
+    String? firstInbox,
+  });
 
   Future<String> crateApiV2V2ResolveSendAddress({required String peerSignalId});
 
-  Future<String> crateApiV2V2StampEvent(
-      {required String eventJson, required String cashuToken});
+  Future<String> crateApiV2V2StampEvent({
+    required String eventJson,
+    required String cashuToken,
+  });
 
   Future<V2UnwrappedEvent> crateApiV2V2UnwrapEvent({required String eventJson});
 
-  Future<String> crateApiV2V2WrapEvent(
-      {required String innerContent, required String receiverNpub});
+  Future<String> crateApiV2V2WrapEvent({
+    required String innerContent,
+    required String receiverNpub,
+  });
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -177,47 +204,59 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> crateApiV2InitV2({required String nostrPrivkeyHex}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(nostrPrivkeyHex, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 1, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(nostrPrivkeyHex, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2InitV2ConstMeta,
+        argValues: [nostrPrivkeyHex],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2InitV2ConstMeta,
-      argValues: [nostrPrivkeyHex],
-      apiImpl: this,
-    ));
+    );
   }
 
-  TaskConstMeta get kCrateApiV2InitV2ConstMeta => const TaskConstMeta(
-        debugName: "init_v2",
-        argNames: ["nostrPrivkeyHex"],
-      );
+  TaskConstMeta get kCrateApiV2InitV2ConstMeta =>
+      const TaskConstMeta(debugName: "init_v2", argNames: ["nostrPrivkeyHex"]);
 
   @override
-  Future<V2AcceptResult> crateApiV2V2AcceptFriendRequest(
-      {required String eventJson, required String myDisplayName}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(eventJson, serializer);
-        sse_encode_String(myDisplayName, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_accept_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2AcceptResult> crateApiV2V2AcceptFriendRequest({
+    required String eventJson,
+    required String myDisplayName,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(eventJson, serializer);
+          sse_encode_String(myDisplayName, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_accept_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2AcceptFriendRequestConstMeta,
+        argValues: [eventJson, myDisplayName],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2AcceptFriendRequestConstMeta,
-      argValues: [eventJson, myDisplayName],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2AcceptFriendRequestConstMeta =>
@@ -227,23 +266,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiV2V2BuildFriendRequestMessage(
-      {required String payloadJson}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(payloadJson, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 3, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2BuildFriendRequestMessage({
+    required String payloadJson,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(payloadJson, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2BuildFriendRequestMessageConstMeta,
+        argValues: [payloadJson],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2BuildFriendRequestMessageConstMeta,
-      argValues: [payloadJson],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2BuildFriendRequestMessageConstMeta =>
@@ -254,21 +300,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<String> crateApiV2V2BuildTextMessage({required String text}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(text, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 4, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(text, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 4,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2BuildTextMessageConstMeta,
+        argValues: [text],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2BuildTextMessageConstMeta,
-      argValues: [text],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2BuildTextMessageConstMeta =>
@@ -278,24 +330,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<V2FriendRequestResult> crateApiV2V2CreateFriendRequest(
-      {required String peerNpub, required String displayName}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerNpub, serializer);
-        sse_encode_String(displayName, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_friend_request_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2FriendRequestResult> crateApiV2V2CreateFriendRequest({
+    required String peerNpub,
+    required String displayName,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerNpub, serializer);
+          sse_encode_String(displayName, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 5,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_friend_request_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2CreateFriendRequestConstMeta,
+        argValues: [peerNpub, displayName],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2CreateFriendRequestConstMeta,
-      argValues: [peerNpub, displayName],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2CreateFriendRequestConstMeta =>
@@ -305,50 +365,66 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<V2DecryptResult> crateApiV2V2Decrypt(
-      {required String peerSignalId, required String ciphertextBase64}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerSignalId, serializer);
-        sse_encode_String(ciphertextBase64, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 6, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_decrypt_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2DecryptResult> crateApiV2V2Decrypt({
+    required String peerSignalId,
+    required String ciphertextBase64,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerSignalId, serializer);
+          sse_encode_String(ciphertextBase64, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 6,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_decrypt_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2DecryptConstMeta,
+        argValues: [peerSignalId, ciphertextBase64],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2DecryptConstMeta,
-      argValues: [peerSignalId, ciphertextBase64],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2DecryptConstMeta => const TaskConstMeta(
-        debugName: "v2_decrypt",
-        argNames: ["peerSignalId", "ciphertextBase64"],
-      );
+    debugName: "v2_decrypt",
+    argNames: ["peerSignalId", "ciphertextBase64"],
+  );
 
   @override
-  Future<String> crateApiV2V2DeriveReceivingAddress(
-      {required String privateKeyHex, required String publicKeyHex}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(privateKeyHex, serializer);
-        sse_encode_String(publicKeyHex, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 7, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2DeriveReceivingAddress({
+    required String privateKeyHex,
+    required String publicKeyHex,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(privateKeyHex, serializer);
+          sse_encode_String(publicKeyHex, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 7,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2DeriveReceivingAddressConstMeta,
+        argValues: [privateKeyHex, publicKeyHex],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2DeriveReceivingAddressConstMeta,
-      argValues: [privateKeyHex, publicKeyHex],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2DeriveReceivingAddressConstMeta =>
@@ -358,73 +434,94 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<V2EncryptResult> crateApiV2V2Encrypt(
-      {required String peerSignalId, required String plaintext}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerSignalId, serializer);
-        sse_encode_String(plaintext, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 8, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_encrypt_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2EncryptResult> crateApiV2V2Encrypt({
+    required String peerSignalId,
+    required String plaintext,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerSignalId, serializer);
+          sse_encode_String(plaintext, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 8,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_encrypt_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2EncryptConstMeta,
+        argValues: [peerSignalId, plaintext],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2EncryptConstMeta,
-      argValues: [peerSignalId, plaintext],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2EncryptConstMeta => const TaskConstMeta(
-        debugName: "v2_encrypt",
-        argNames: ["peerSignalId", "plaintext"],
-      );
+    debugName: "v2_encrypt",
+    argNames: ["peerSignalId", "plaintext"],
+  );
 
   @override
   Future<String> crateApiV2V2FetchRelayFees({required String relayUrl}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(relayUrl, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 9, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(relayUrl, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 9,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2FetchRelayFeesConstMeta,
+        argValues: [relayUrl],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2FetchRelayFeesConstMeta,
-      argValues: [relayUrl],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2FetchRelayFeesConstMeta => const TaskConstMeta(
-        debugName: "v2_fetch_relay_fees",
-        argNames: ["relayUrl"],
-      );
+    debugName: "v2_fetch_relay_fees",
+    argNames: ["relayUrl"],
+  );
 
   @override
-  Future<List<String>> crateApiV2V2GetAllReceivingAddresses(
-      {required String peerSignalId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerSignalId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 10, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_list_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<List<String>> crateApiV2V2GetAllReceivingAddresses({
+    required String peerSignalId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerSignalId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 10,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2GetAllReceivingAddressesConstMeta,
+        argValues: [peerSignalId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2GetAllReceivingAddressesConstMeta,
-      argValues: [peerSignalId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2GetAllReceivingAddressesConstMeta =>
@@ -434,100 +531,130 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers(
-      {required String groupId, required String keyPackagesBase64Json}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(keyPackagesBase64Json, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 11, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_mls_add_members_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2MlsAddMembersResult> crateApiV2V2MlsAddMembers({
+    required String groupId,
+    required String keyPackagesBase64Json,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(keyPackagesBase64Json, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 11,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_mls_add_members_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsAddMembersConstMeta,
+        argValues: [groupId, keyPackagesBase64Json],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsAddMembersConstMeta,
-      argValues: [groupId, keyPackagesBase64Json],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsAddMembersConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_add_members",
-        argNames: ["groupId", "keyPackagesBase64Json"],
-      );
+    debugName: "v2_mls_add_members",
+    argNames: ["groupId", "keyPackagesBase64Json"],
+  );
 
   @override
-  Future<void> crateApiV2V2MlsCreateGroup(
-      {required String groupId, required String name}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(name, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 12, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<void> crateApiV2V2MlsCreateGroup({
+    required String groupId,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(name, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 12,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsCreateGroupConstMeta,
+        argValues: [groupId, name],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsCreateGroupConstMeta,
-      argValues: [groupId, name],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsCreateGroupConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_create_group",
-        argNames: ["groupId", "name"],
-      );
+    debugName: "v2_mls_create_group",
+    argNames: ["groupId", "name"],
+  );
 
   @override
-  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt(
-      {required String groupId, required String ciphertextBase64}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(ciphertextBase64, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 13, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_mls_decrypt_result,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2MlsDecryptResult> crateApiV2V2MlsDecrypt({
+    required String groupId,
+    required String ciphertextBase64,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(ciphertextBase64, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 13,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_mls_decrypt_result,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsDecryptConstMeta,
+        argValues: [groupId, ciphertextBase64],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsDecryptConstMeta,
-      argValues: [groupId, ciphertextBase64],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsDecryptConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_decrypt",
-        argNames: ["groupId", "ciphertextBase64"],
-      );
+    debugName: "v2_mls_decrypt",
+    argNames: ["groupId", "ciphertextBase64"],
+  );
 
   @override
   Future<String> crateApiV2V2MlsDeriveTempInbox({required String groupId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 14, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 14,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsDeriveTempInboxConstMeta,
+        argValues: [groupId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsDeriveTempInboxConstMeta,
-      argValues: [groupId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsDeriveTempInboxConstMeta =>
@@ -537,47 +664,61 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiV2V2MlsEncrypt(
-      {required String groupId, required String plaintext}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(plaintext, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 15, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2MlsEncrypt({
+    required String groupId,
+    required String plaintext,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(plaintext, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 15,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsEncryptConstMeta,
+        argValues: [groupId, plaintext],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsEncryptConstMeta,
-      argValues: [groupId, plaintext],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsEncryptConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_encrypt",
-        argNames: ["groupId", "plaintext"],
-      );
+    debugName: "v2_mls_encrypt",
+    argNames: ["groupId", "plaintext"],
+  );
 
   @override
   Future<String> crateApiV2V2MlsGenerateKeyPackage() {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 16, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 16,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsGenerateKeyPackageConstMeta,
+        argValues: [],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsGenerateKeyPackageConstMeta,
-      argValues: [],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsGenerateKeyPackageConstMeta =>
@@ -588,45 +729,57 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<V2MlsGroupInfo> crateApiV2V2MlsGroupInfo({required String groupId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 17, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_mls_group_info,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 17,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_mls_group_info,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsGroupInfoConstMeta,
+        argValues: [groupId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsGroupInfoConstMeta,
-      argValues: [groupId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsGroupInfoConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_group_info",
-        argNames: ["groupId"],
-      );
+    debugName: "v2_mls_group_info",
+    argNames: ["groupId"],
+  );
 
   @override
   Future<List<String>> crateApiV2V2MlsGroupMembers({required String groupId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 18, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_list_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 18,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsGroupMembersConstMeta,
+        argValues: [groupId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsGroupMembersConstMeta,
-      argValues: [groupId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsGroupMembersConstMeta =>
@@ -637,94 +790,118 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<void> crateApiV2V2MlsInit() {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 19, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 19,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsInitConstMeta,
+        argValues: [],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsInitConstMeta,
-      argValues: [],
-      apiImpl: this,
-    ));
+    );
   }
 
-  TaskConstMeta get kCrateApiV2V2MlsInitConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_init",
-        argNames: [],
-      );
+  TaskConstMeta get kCrateApiV2V2MlsInitConstMeta =>
+      const TaskConstMeta(debugName: "v2_mls_init", argNames: []);
 
   @override
   Future<String> crateApiV2V2MlsJoinGroup({required String welcomeBase64}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(welcomeBase64, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 20, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(welcomeBase64, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 20,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsJoinGroupConstMeta,
+        argValues: [welcomeBase64],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsJoinGroupConstMeta,
-      argValues: [welcomeBase64],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsJoinGroupConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_join_group",
-        argNames: ["welcomeBase64"],
-      );
+    debugName: "v2_mls_join_group",
+    argNames: ["welcomeBase64"],
+  );
 
   @override
   Future<String> crateApiV2V2MlsLeaveGroup({required String groupId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 21, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 21,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsLeaveGroupConstMeta,
+        argValues: [groupId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsLeaveGroupConstMeta,
-      argValues: [groupId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsLeaveGroupConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_leave_group",
-        argNames: ["groupId"],
-      );
+    debugName: "v2_mls_leave_group",
+    argNames: ["groupId"],
+  );
 
   @override
-  Future<void> crateApiV2V2MlsProcessCommit(
-      {required String groupId, required String commitBase64}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(commitBase64, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 22, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<void> crateApiV2V2MlsProcessCommit({
+    required String groupId,
+    required String commitBase64,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(commitBase64, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 22,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsProcessCommitConstMeta,
+        argValues: [groupId, commitBase64],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsProcessCommitConstMeta,
-      argValues: [groupId, commitBase64],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsProcessCommitConstMeta =>
@@ -734,24 +911,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiV2V2MlsRemoveMembers(
-      {required String groupId, required String memberIdsJson}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_String(memberIdsJson, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 23, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2MlsRemoveMembers({
+    required String groupId,
+    required String memberIdsJson,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(memberIdsJson, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 23,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsRemoveMembersConstMeta,
+        argValues: [groupId, memberIdsJson],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsRemoveMembersConstMeta,
-      argValues: [groupId, memberIdsJson],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsRemoveMembersConstMeta =>
@@ -762,101 +947,125 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<String> crateApiV2V2MlsSelfUpdate({required String groupId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 24, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 24,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsSelfUpdateConstMeta,
+        argValues: [groupId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsSelfUpdateConstMeta,
-      argValues: [groupId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsSelfUpdateConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_self_update",
-        argNames: ["groupId"],
-      );
+    debugName: "v2_mls_self_update",
+    argNames: ["groupId"],
+  );
 
   @override
-  Future<String> crateApiV2V2MlsUpdateGroup(
-      {required String groupId,
-      String? name,
-      String? status,
-      String? adminPubkeysJson}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(groupId, serializer);
-        sse_encode_opt_String(name, serializer);
-        sse_encode_opt_String(status, serializer);
-        sse_encode_opt_String(adminPubkeysJson, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 25, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2MlsUpdateGroup({
+    required String groupId,
+    String? name,
+    String? status,
+    String? adminPubkeysJson,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(groupId, serializer);
+          sse_encode_opt_String(name, serializer);
+          sse_encode_opt_String(status, serializer);
+          sse_encode_opt_String(adminPubkeysJson, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 25,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2MlsUpdateGroupConstMeta,
+        argValues: [groupId, name, status, adminPubkeysJson],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2MlsUpdateGroupConstMeta,
-      argValues: [groupId, name, status, adminPubkeysJson],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2MlsUpdateGroupConstMeta => const TaskConstMeta(
-        debugName: "v2_mls_update_group",
-        argNames: ["groupId", "name", "status", "adminPubkeysJson"],
-      );
+    debugName: "v2_mls_update_group",
+    argNames: ["groupId", "name", "status", "adminPubkeysJson"],
+  );
 
   @override
   Future<V2ParsedMessage> crateApiV2V2ParseMessage({required String json}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(json, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 26, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_parsed_message,
-        decodeErrorData: sse_decode_AnyhowException,
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(json, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 26,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_parsed_message,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2ParseMessageConstMeta,
+        argValues: [json],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2ParseMessageConstMeta,
-      argValues: [json],
-      apiImpl: this,
-    ));
+    );
   }
 
-  TaskConstMeta get kCrateApiV2V2ParseMessageConstMeta => const TaskConstMeta(
-        debugName: "v2_parse_message",
-        argNames: ["json"],
-      );
+  TaskConstMeta get kCrateApiV2V2ParseMessageConstMeta =>
+      const TaskConstMeta(debugName: "v2_parse_message", argNames: ["json"]);
 
   @override
-  Future<V2IncomingFriendRequest> crateApiV2V2ReceiveFriendRequest(
-      {required String eventJson}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(eventJson, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 27, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_incoming_friend_request,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2IncomingFriendRequest> crateApiV2V2ReceiveFriendRequest({
+    required String eventJson,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(eventJson, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 27,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_incoming_friend_request,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2ReceiveFriendRequestConstMeta,
+        argValues: [eventJson],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2ReceiveFriendRequestConstMeta,
-      argValues: [eventJson],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2ReceiveFriendRequestConstMeta =>
@@ -866,52 +1075,66 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiV2V2RegisterPeer(
-      {required String peerSignalId,
-      required String peerNostrPubkey,
-      String? firstInbox}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerSignalId, serializer);
-        sse_encode_String(peerNostrPubkey, serializer);
-        sse_encode_opt_String(firstInbox, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 28, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_unit,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<void> crateApiV2V2RegisterPeer({
+    required String peerSignalId,
+    required String peerNostrPubkey,
+    String? firstInbox,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerSignalId, serializer);
+          sse_encode_String(peerNostrPubkey, serializer);
+          sse_encode_opt_String(firstInbox, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 28,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2RegisterPeerConstMeta,
+        argValues: [peerSignalId, peerNostrPubkey, firstInbox],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2RegisterPeerConstMeta,
-      argValues: [peerSignalId, peerNostrPubkey, firstInbox],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2RegisterPeerConstMeta => const TaskConstMeta(
-        debugName: "v2_register_peer",
-        argNames: ["peerSignalId", "peerNostrPubkey", "firstInbox"],
-      );
+    debugName: "v2_register_peer",
+    argNames: ["peerSignalId", "peerNostrPubkey", "firstInbox"],
+  );
 
   @override
-  Future<String> crateApiV2V2ResolveSendAddress(
-      {required String peerSignalId}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(peerSignalId, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 29, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2ResolveSendAddress({
+    required String peerSignalId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(peerSignalId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 29,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2ResolveSendAddressConstMeta,
+        argValues: [peerSignalId],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2ResolveSendAddressConstMeta,
-      argValues: [peerSignalId],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2ResolveSendAddressConstMeta =>
@@ -921,81 +1144,104 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<String> crateApiV2V2StampEvent(
-      {required String eventJson, required String cashuToken}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(eventJson, serializer);
-        sse_encode_String(cashuToken, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 30, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2StampEvent({
+    required String eventJson,
+    required String cashuToken,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(eventJson, serializer);
+          sse_encode_String(cashuToken, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 30,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2StampEventConstMeta,
+        argValues: [eventJson, cashuToken],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2StampEventConstMeta,
-      argValues: [eventJson, cashuToken],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2StampEventConstMeta => const TaskConstMeta(
-        debugName: "v2_stamp_event",
-        argNames: ["eventJson", "cashuToken"],
-      );
+    debugName: "v2_stamp_event",
+    argNames: ["eventJson", "cashuToken"],
+  );
 
   @override
-  Future<V2UnwrappedEvent> crateApiV2V2UnwrapEvent(
-      {required String eventJson}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(eventJson, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 31, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_v_2_unwrapped_event,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<V2UnwrappedEvent> crateApiV2V2UnwrapEvent({
+    required String eventJson,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(eventJson, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 31,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_v_2_unwrapped_event,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2UnwrapEventConstMeta,
+        argValues: [eventJson],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2UnwrapEventConstMeta,
-      argValues: [eventJson],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2UnwrapEventConstMeta => const TaskConstMeta(
-        debugName: "v2_unwrap_event",
-        argNames: ["eventJson"],
-      );
+    debugName: "v2_unwrap_event",
+    argNames: ["eventJson"],
+  );
 
   @override
-  Future<String> crateApiV2V2WrapEvent(
-      {required String innerContent, required String receiverNpub}) {
-    return handler.executeNormal(NormalTask(
-      callFfi: (port_) {
-        final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_String(innerContent, serializer);
-        sse_encode_String(receiverNpub, serializer);
-        pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 32, port: port_);
-      },
-      codec: SseCodec(
-        decodeSuccessData: sse_decode_String,
-        decodeErrorData: sse_decode_AnyhowException,
+  Future<String> crateApiV2V2WrapEvent({
+    required String innerContent,
+    required String receiverNpub,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(innerContent, serializer);
+          sse_encode_String(receiverNpub, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 32,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiV2V2WrapEventConstMeta,
+        argValues: [innerContent, receiverNpub],
+        apiImpl: this,
       ),
-      constMeta: kCrateApiV2V2WrapEventConstMeta,
-      argValues: [innerContent, receiverNpub],
-      apiImpl: this,
-    ));
+    );
   }
 
   TaskConstMeta get kCrateApiV2V2WrapEventConstMeta => const TaskConstMeta(
-        debugName: "v2_wrap_event",
-        argNames: ["innerContent", "receiverNpub"],
-      );
+    debugName: "v2_wrap_event",
+    argNames: ["innerContent", "receiverNpub"],
+  );
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
@@ -1263,7 +1509,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_eventJson = sse_decode_String(deserializer);
     var var_peerSignalIdentity = sse_decode_String(deserializer);
     return V2AcceptResult(
-        eventJson: var_eventJson, peerSignalIdentity: var_peerSignalIdentity);
+      eventJson: var_eventJson,
+      peerSignalIdentity: var_peerSignalIdentity,
+    );
   }
 
   @protected
@@ -1273,9 +1521,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_senderAddress = sse_decode_String(deserializer);
     var var_newReceivingAddresses = sse_decode_list_String(deserializer);
     return V2DecryptResult(
-        plaintext: var_plaintext,
-        senderAddress: var_senderAddress,
-        newReceivingAddresses: var_newReceivingAddresses);
+      plaintext: var_plaintext,
+      senderAddress: var_senderAddress,
+      newReceivingAddresses: var_newReceivingAddresses,
+    );
   }
 
   @protected
@@ -1285,29 +1534,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_senderAddress = sse_decode_String(deserializer);
     var var_newReceivingAddresses = sse_decode_list_String(deserializer);
     return V2EncryptResult(
-        ciphertextBase64: var_ciphertextBase64,
-        senderAddress: var_senderAddress,
-        newReceivingAddresses: var_newReceivingAddresses);
+      ciphertextBase64: var_ciphertextBase64,
+      senderAddress: var_senderAddress,
+      newReceivingAddresses: var_newReceivingAddresses,
+    );
   }
 
   @protected
   V2FriendRequestResult sse_decode_v_2_friend_request_result(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_eventJson = sse_decode_String(deserializer);
     var var_firstInboxPubkey = sse_decode_String(deserializer);
     var var_firstInboxSecret = sse_decode_String(deserializer);
     var var_signalIdentityHex = sse_decode_String(deserializer);
     return V2FriendRequestResult(
-        eventJson: var_eventJson,
-        firstInboxPubkey: var_firstInboxPubkey,
-        firstInboxSecret: var_firstInboxSecret,
-        signalIdentityHex: var_signalIdentityHex);
+      eventJson: var_eventJson,
+      firstInboxPubkey: var_firstInboxPubkey,
+      firstInboxSecret: var_firstInboxSecret,
+      signalIdentityHex: var_signalIdentityHex,
+    );
   }
 
   @protected
   V2IncomingFriendRequest sse_decode_v_2_incoming_friend_request(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_senderNpub = sse_decode_String(deserializer);
     var var_senderName = sse_decode_String(deserializer);
@@ -1325,36 +1578,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_globalSign = sse_decode_String(deserializer);
     var var_payloadJson = sse_decode_String(deserializer);
     return V2IncomingFriendRequest(
-        senderNpub: var_senderNpub,
-        senderName: var_senderName,
-        signalIdentityKey: var_signalIdentityKey,
-        firstInbox: var_firstInbox,
-        deviceId: var_deviceId,
-        signalSignedPrekeyId: var_signalSignedPrekeyId,
-        signalSignedPrekey: var_signalSignedPrekey,
-        signalSignedPrekeySignature: var_signalSignedPrekeySignature,
-        signalOneTimePrekeyId: var_signalOneTimePrekeyId,
-        signalOneTimePrekey: var_signalOneTimePrekey,
-        signalKyberPrekeyId: var_signalKyberPrekeyId,
-        signalKyberPrekey: var_signalKyberPrekey,
-        signalKyberPrekeySignature: var_signalKyberPrekeySignature,
-        globalSign: var_globalSign,
-        payloadJson: var_payloadJson);
+      senderNpub: var_senderNpub,
+      senderName: var_senderName,
+      signalIdentityKey: var_signalIdentityKey,
+      firstInbox: var_firstInbox,
+      deviceId: var_deviceId,
+      signalSignedPrekeyId: var_signalSignedPrekeyId,
+      signalSignedPrekey: var_signalSignedPrekey,
+      signalSignedPrekeySignature: var_signalSignedPrekeySignature,
+      signalOneTimePrekeyId: var_signalOneTimePrekeyId,
+      signalOneTimePrekey: var_signalOneTimePrekey,
+      signalKyberPrekeyId: var_signalKyberPrekeyId,
+      signalKyberPrekey: var_signalKyberPrekey,
+      signalKyberPrekeySignature: var_signalKyberPrekeySignature,
+      globalSign: var_globalSign,
+      payloadJson: var_payloadJson,
+    );
   }
 
   @protected
   V2MlsAddMembersResult sse_decode_v_2_mls_add_members_result(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_commitBase64 = sse_decode_String(deserializer);
     var var_welcomeBase64 = sse_decode_String(deserializer);
     return V2MlsAddMembersResult(
-        commitBase64: var_commitBase64, welcomeBase64: var_welcomeBase64);
+      commitBase64: var_commitBase64,
+      welcomeBase64: var_welcomeBase64,
+    );
   }
 
   @protected
   V2MlsDecryptResult sse_decode_v_2_mls_decrypt_result(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_plaintext = sse_decode_String(deserializer);
     var var_senderId = sse_decode_String(deserializer);
@@ -1368,7 +1626,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_status = sse_decode_String(deserializer);
     var var_adminsJson = sse_decode_String(deserializer);
     return V2MlsGroupInfo(
-        name: var_name, status: var_status, adminsJson: var_adminsJson);
+      name: var_name,
+      status: var_status,
+      adminsJson: var_adminsJson,
+    );
   }
 
   @protected
@@ -1381,15 +1642,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   V2UnwrappedEvent sse_decode_v_2_unwrapped_event(
-      SseDeserializer deserializer) {
+    SseDeserializer deserializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_senderNpub = sse_decode_String(deserializer);
     var var_content = sse_decode_String(deserializer);
     var var_timestamp = sse_decode_u_64(deserializer);
     return V2UnwrappedEvent(
-        senderNpub: var_senderNpub,
-        content: var_content,
-        timestamp: var_timestamp);
+      senderNpub: var_senderNpub,
+      content: var_content,
+      timestamp: var_timestamp,
+    );
   }
 
   @protected
@@ -1406,7 +1669,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer) {
+    AnyhowException self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
   }
@@ -1428,7 +1693,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer) {
+    Uint8List self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
@@ -1469,7 +1736,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_accept_result(
-      V2AcceptResult self, SseSerializer serializer) {
+    V2AcceptResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.eventJson, serializer);
     sse_encode_String(self.peerSignalIdentity, serializer);
@@ -1477,7 +1746,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_decrypt_result(
-      V2DecryptResult self, SseSerializer serializer) {
+    V2DecryptResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.plaintext, serializer);
     sse_encode_String(self.senderAddress, serializer);
@@ -1486,7 +1757,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_encrypt_result(
-      V2EncryptResult self, SseSerializer serializer) {
+    V2EncryptResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.ciphertextBase64, serializer);
     sse_encode_String(self.senderAddress, serializer);
@@ -1495,7 +1768,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_friend_request_result(
-      V2FriendRequestResult self, SseSerializer serializer) {
+    V2FriendRequestResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.eventJson, serializer);
     sse_encode_String(self.firstInboxPubkey, serializer);
@@ -1505,7 +1780,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_incoming_friend_request(
-      V2IncomingFriendRequest self, SseSerializer serializer) {
+    V2IncomingFriendRequest self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.senderNpub, serializer);
     sse_encode_String(self.senderName, serializer);
@@ -1526,7 +1803,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_mls_add_members_result(
-      V2MlsAddMembersResult self, SseSerializer serializer) {
+    V2MlsAddMembersResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.commitBase64, serializer);
     sse_encode_String(self.welcomeBase64, serializer);
@@ -1534,7 +1813,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_mls_decrypt_result(
-      V2MlsDecryptResult self, SseSerializer serializer) {
+    V2MlsDecryptResult self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.plaintext, serializer);
     sse_encode_String(self.senderId, serializer);
@@ -1542,7 +1823,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_mls_group_info(
-      V2MlsGroupInfo self, SseSerializer serializer) {
+    V2MlsGroupInfo self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.name, serializer);
     sse_encode_String(self.status, serializer);
@@ -1551,7 +1834,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_parsed_message(
-      V2ParsedMessage self, SseSerializer serializer) {
+    V2ParsedMessage self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.kind, serializer);
     sse_encode_String(self.contentJson, serializer);
@@ -1559,7 +1844,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_v_2_unwrapped_event(
-      V2UnwrappedEvent self, SseSerializer serializer) {
+    V2UnwrappedEvent self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.senderNpub, serializer);
     sse_encode_String(self.content, serializer);

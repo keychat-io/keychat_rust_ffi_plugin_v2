@@ -13,34 +13,50 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 Future<void> initV2({required String nostrPrivkeyHex}) =>
     RustLib.instance.api.crateApiV2InitV2(nostrPrivkeyHex: nostrPrivkeyHex);
 
-Future<V2FriendRequestResult> v2CreateFriendRequest(
-        {required String peerNpub, required String displayName}) =>
-    RustLib.instance.api.crateApiV2V2CreateFriendRequest(
-        peerNpub: peerNpub, displayName: displayName);
+Future<V2FriendRequestResult> v2CreateFriendRequest({
+  required String peerNpub,
+  required String displayName,
+}) => RustLib.instance.api.crateApiV2V2CreateFriendRequest(
+  peerNpub: peerNpub,
+  displayName: displayName,
+);
 
-Future<V2IncomingFriendRequest> v2ReceiveFriendRequest(
-        {required String eventJson}) =>
+Future<V2IncomingFriendRequest> v2ReceiveFriendRequest({
+  required String eventJson,
+}) =>
     RustLib.instance.api.crateApiV2V2ReceiveFriendRequest(eventJson: eventJson);
 
-Future<V2AcceptResult> v2AcceptFriendRequest(
-        {required String eventJson, required String myDisplayName}) =>
-    RustLib.instance.api.crateApiV2V2AcceptFriendRequest(
-        eventJson: eventJson, myDisplayName: myDisplayName);
+Future<V2AcceptResult> v2AcceptFriendRequest({
+  required String eventJson,
+  required String myDisplayName,
+}) => RustLib.instance.api.crateApiV2V2AcceptFriendRequest(
+  eventJson: eventJson,
+  myDisplayName: myDisplayName,
+);
 
-Future<V2EncryptResult> v2Encrypt(
-        {required String peerSignalId, required String plaintext}) =>
-    RustLib.instance.api
-        .crateApiV2V2Encrypt(peerSignalId: peerSignalId, plaintext: plaintext);
+Future<V2EncryptResult> v2Encrypt({
+  required String peerSignalId,
+  required String plaintext,
+}) => RustLib.instance.api.crateApiV2V2Encrypt(
+  peerSignalId: peerSignalId,
+  plaintext: plaintext,
+);
 
-Future<V2DecryptResult> v2Decrypt(
-        {required String peerSignalId, required String ciphertextBase64}) =>
-    RustLib.instance.api.crateApiV2V2Decrypt(
-        peerSignalId: peerSignalId, ciphertextBase64: ciphertextBase64);
+Future<V2DecryptResult> v2Decrypt({
+  required String peerSignalId,
+  required String ciphertextBase64,
+}) => RustLib.instance.api.crateApiV2V2Decrypt(
+  peerSignalId: peerSignalId,
+  ciphertextBase64: ciphertextBase64,
+);
 
-Future<String> v2WrapEvent(
-        {required String innerContent, required String receiverNpub}) =>
-    RustLib.instance.api.crateApiV2V2WrapEvent(
-        innerContent: innerContent, receiverNpub: receiverNpub);
+Future<String> v2WrapEvent({
+  required String innerContent,
+  required String receiverNpub,
+}) => RustLib.instance.api.crateApiV2V2WrapEvent(
+  innerContent: innerContent,
+  receiverNpub: receiverNpub,
+);
 
 Future<V2UnwrappedEvent> v2UnwrapEvent({required String eventJson}) =>
     RustLib.instance.api.crateApiV2V2UnwrapEvent(eventJson: eventJson);
@@ -48,43 +64,53 @@ Future<V2UnwrappedEvent> v2UnwrapEvent({required String eventJson}) =>
 Future<String> v2FetchRelayFees({required String relayUrl}) =>
     RustLib.instance.api.crateApiV2V2FetchRelayFees(relayUrl: relayUrl);
 
-Future<String> v2StampEvent(
-        {required String eventJson, required String cashuToken}) =>
-    RustLib.instance.api
-        .crateApiV2V2StampEvent(eventJson: eventJson, cashuToken: cashuToken);
+Future<String> v2StampEvent({
+  required String eventJson,
+  required String cashuToken,
+}) => RustLib.instance.api.crateApiV2V2StampEvent(
+  eventJson: eventJson,
+  cashuToken: cashuToken,
+);
 
-Future<String> v2DeriveReceivingAddress(
-        {required String privateKeyHex, required String publicKeyHex}) =>
-    RustLib.instance.api.crateApiV2V2DeriveReceivingAddress(
-        privateKeyHex: privateKeyHex, publicKeyHex: publicKeyHex);
+Future<String> v2DeriveReceivingAddress({
+  required String privateKeyHex,
+  required String publicKeyHex,
+}) => RustLib.instance.api.crateApiV2V2DeriveReceivingAddress(
+  privateKeyHex: privateKeyHex,
+  publicKeyHex: publicKeyHex,
+);
 
-Future<List<String>> v2GetAllReceivingAddresses(
-        {required String peerSignalId}) =>
-    RustLib.instance.api
-        .crateApiV2V2GetAllReceivingAddresses(peerSignalId: peerSignalId);
+Future<List<String>> v2GetAllReceivingAddresses({
+  required String peerSignalId,
+}) => RustLib.instance.api.crateApiV2V2GetAllReceivingAddresses(
+  peerSignalId: peerSignalId,
+);
 
 Future<String> v2BuildTextMessage({required String text}) =>
     RustLib.instance.api.crateApiV2V2BuildTextMessage(text: text);
 
 Future<String> v2BuildFriendRequestMessage({required String payloadJson}) =>
-    RustLib.instance.api
-        .crateApiV2V2BuildFriendRequestMessage(payloadJson: payloadJson);
+    RustLib.instance.api.crateApiV2V2BuildFriendRequestMessage(
+      payloadJson: payloadJson,
+    );
 
 Future<V2ParsedMessage> v2ParseMessage({required String json}) =>
     RustLib.instance.api.crateApiV2V2ParseMessage(json: json);
 
-Future<void> v2RegisterPeer(
-        {required String peerSignalId,
-        required String peerNostrPubkey,
-        String? firstInbox}) =>
-    RustLib.instance.api.crateApiV2V2RegisterPeer(
-        peerSignalId: peerSignalId,
-        peerNostrPubkey: peerNostrPubkey,
-        firstInbox: firstInbox);
+Future<void> v2RegisterPeer({
+  required String peerSignalId,
+  required String peerNostrPubkey,
+  String? firstInbox,
+}) => RustLib.instance.api.crateApiV2V2RegisterPeer(
+  peerSignalId: peerSignalId,
+  peerNostrPubkey: peerNostrPubkey,
+  firstInbox: firstInbox,
+);
 
-Future<String> v2ResolveSendAddress({required String peerSignalId}) =>
-    RustLib.instance.api
-        .crateApiV2V2ResolveSendAddress(peerSignalId: peerSignalId);
+Future<String> v2ResolveSendAddress({required String peerSignalId}) => RustLib
+    .instance
+    .api
+    .crateApiV2V2ResolveSendAddress(peerSignalId: peerSignalId);
 
 /// Initialize MLS subsystem. Creates MlsParticipant from identity npub.
 Future<void> v2MlsInit() => RustLib.instance.api.crateApiV2V2MlsInit();
@@ -94,38 +120,53 @@ Future<String> v2MlsGenerateKeyPackage() =>
     RustLib.instance.api.crateApiV2V2MlsGenerateKeyPackage();
 
 /// Create a new MLS group.
-Future<void> v2MlsCreateGroup(
-        {required String groupId, required String name}) =>
-    RustLib.instance.api
-        .crateApiV2V2MlsCreateGroup(groupId: groupId, name: name);
+Future<void> v2MlsCreateGroup({
+  required String groupId,
+  required String name,
+}) => RustLib.instance.api.crateApiV2V2MlsCreateGroup(
+  groupId: groupId,
+  name: name,
+);
 
 /// Add members. key_packages_base64_json: JSON array of base64 KeyPackage bytes.
-Future<V2MlsAddMembersResult> v2MlsAddMembers(
-        {required String groupId, required String keyPackagesBase64Json}) =>
-    RustLib.instance.api.crateApiV2V2MlsAddMembers(
-        groupId: groupId, keyPackagesBase64Json: keyPackagesBase64Json);
+Future<V2MlsAddMembersResult> v2MlsAddMembers({
+  required String groupId,
+  required String keyPackagesBase64Json,
+}) => RustLib.instance.api.crateApiV2V2MlsAddMembers(
+  groupId: groupId,
+  keyPackagesBase64Json: keyPackagesBase64Json,
+);
 
 /// Join a group via Welcome (base64). Returns group_id.
 Future<String> v2MlsJoinGroup({required String welcomeBase64}) =>
     RustLib.instance.api.crateApiV2V2MlsJoinGroup(welcomeBase64: welcomeBase64);
 
 /// Encrypt plaintext for MLS group. Returns ciphertext base64.
-Future<String> v2MlsEncrypt(
-        {required String groupId, required String plaintext}) =>
-    RustLib.instance.api
-        .crateApiV2V2MlsEncrypt(groupId: groupId, plaintext: plaintext);
+Future<String> v2MlsEncrypt({
+  required String groupId,
+  required String plaintext,
+}) => RustLib.instance.api.crateApiV2V2MlsEncrypt(
+  groupId: groupId,
+  plaintext: plaintext,
+);
 
 /// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
-Future<V2MlsDecryptResult> v2MlsDecrypt(
-        {required String groupId, required String ciphertextBase64}) =>
-    RustLib.instance.api.crateApiV2V2MlsDecrypt(
-        groupId: groupId, ciphertextBase64: ciphertextBase64);
+Future<V2MlsDecryptResult> v2MlsDecrypt({
+  required String groupId,
+  required String ciphertextBase64,
+}) => RustLib.instance.api.crateApiV2V2MlsDecrypt(
+  groupId: groupId,
+  ciphertextBase64: ciphertextBase64,
+);
 
 /// Remove members by nostr ID (JSON array). Returns commit base64.
-Future<String> v2MlsRemoveMembers(
-        {required String groupId, required String memberIdsJson}) =>
-    RustLib.instance.api.crateApiV2V2MlsRemoveMembers(
-        groupId: groupId, memberIdsJson: memberIdsJson);
+Future<String> v2MlsRemoveMembers({
+  required String groupId,
+  required String memberIdsJson,
+}) => RustLib.instance.api.crateApiV2V2MlsRemoveMembers(
+  groupId: groupId,
+  memberIdsJson: memberIdsJson,
+);
 
 /// Self-update (key rotation). Returns commit base64.
 Future<String> v2MlsSelfUpdate({required String groupId}) =>
@@ -136,10 +177,13 @@ Future<String> v2MlsLeaveGroup({required String groupId}) =>
     RustLib.instance.api.crateApiV2V2MlsLeaveGroup(groupId: groupId);
 
 /// Process incoming MLS Commit (base64).
-Future<void> v2MlsProcessCommit(
-        {required String groupId, required String commitBase64}) =>
-    RustLib.instance.api.crateApiV2V2MlsProcessCommit(
-        groupId: groupId, commitBase64: commitBase64);
+Future<void> v2MlsProcessCommit({
+  required String groupId,
+  required String commitBase64,
+}) => RustLib.instance.api.crateApiV2V2MlsProcessCommit(
+  groupId: groupId,
+  commitBase64: commitBase64,
+);
 
 /// Derive shared MLS temp inbox address.
 Future<String> v2MlsDeriveTempInbox({required String groupId}) =>
@@ -150,16 +194,17 @@ Future<List<String>> v2MlsGroupMembers({required String groupId}) =>
     RustLib.instance.api.crateApiV2V2MlsGroupMembers(groupId: groupId);
 
 /// Update group context. Returns commit base64.
-Future<String> v2MlsUpdateGroup(
-        {required String groupId,
-        String? name,
-        String? status,
-        String? adminPubkeysJson}) =>
-    RustLib.instance.api.crateApiV2V2MlsUpdateGroup(
-        groupId: groupId,
-        name: name,
-        status: status,
-        adminPubkeysJson: adminPubkeysJson);
+Future<String> v2MlsUpdateGroup({
+  required String groupId,
+  String? name,
+  String? status,
+  String? adminPubkeysJson,
+}) => RustLib.instance.api.crateApiV2V2MlsUpdateGroup(
+  groupId: groupId,
+  name: name,
+  status: status,
+  adminPubkeysJson: adminPubkeysJson,
+);
 
 /// Get group info.
 Future<V2MlsGroupInfo> v2MlsGroupInfo({required String groupId}) =>
@@ -371,10 +416,7 @@ class V2MlsDecryptResult {
   final String plaintext;
   final String senderId;
 
-  const V2MlsDecryptResult({
-    required this.plaintext,
-    required this.senderId,
-  });
+  const V2MlsDecryptResult({required this.plaintext, required this.senderId});
 
   @override
   int get hashCode => plaintext.hashCode ^ senderId.hashCode;
@@ -416,10 +458,7 @@ class V2ParsedMessage {
   final String kind;
   final String contentJson;
 
-  const V2ParsedMessage({
-    required this.kind,
-    required this.contentJson,
-  });
+  const V2ParsedMessage({required this.kind, required this.contentJson});
 
   @override
   int get hashCode => kind.hashCode ^ contentJson.hashCode;
