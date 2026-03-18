@@ -4,9 +4,7 @@
 //!   3. Alice creates an MLS group, adds Tom and Bob
 //!   4. Each member sends a group message → other two decrypt it
 
-use libkeychat::{
-    DeviceId, MlsParticipant, ProtocolAddress, SignalParticipant,
-};
+use libkeychat::{DeviceId, MlsParticipant, ProtocolAddress, SignalParticipant};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -91,7 +89,11 @@ fn test_three_party_signal_and_mls() {
     let (bob_tom_id, mut bob_for_tom) = make_signal("bob_tom");
 
     eprintln!("✅ Created 6 Signal identities (2 per user, 1 per peer)");
-    eprintln!("   Alice: {} / {}", &alice_tom_id[..12], &alice_bob_id[..12]);
+    eprintln!(
+        "   Alice: {} / {}",
+        &alice_tom_id[..12],
+        &alice_bob_id[..12]
+    );
     eprintln!("   Tom:   {} / {}", &tom_alice_id[..12], &tom_bob_id[..12]);
     eprintln!("   Bob:   {} / {}", &bob_alice_id[..12], &bob_tom_id[..12]);
 
@@ -99,71 +101,85 @@ fn test_three_party_signal_and_mls() {
 
     // Alice ↔ Tom
     let (alice_to_tom_addr, tom_to_alice_addr) = establish_session(
-        &mut alice_for_tom, &alice_tom_id,
-        &mut tom_for_alice, &tom_alice_id,
+        &mut alice_for_tom,
+        &alice_tom_id,
+        &mut tom_for_alice,
+        &tom_alice_id,
     );
     eprintln!("✅ Session established: Alice ↔ Tom");
 
     // Alice ↔ Bob
     let (alice_to_bob_addr, bob_to_alice_addr) = establish_session(
-        &mut alice_for_bob, &alice_bob_id,
-        &mut bob_for_alice, &bob_alice_id,
+        &mut alice_for_bob,
+        &alice_bob_id,
+        &mut bob_for_alice,
+        &bob_alice_id,
     );
     eprintln!("✅ Session established: Alice ↔ Bob");
 
     // Tom ↔ Bob
-    let (tom_to_bob_addr, bob_to_tom_addr) = establish_session(
-        &mut tom_for_bob, &tom_bob_id,
-        &mut bob_for_tom, &bob_tom_id,
-    );
+    let (tom_to_bob_addr, bob_to_tom_addr) =
+        establish_session(&mut tom_for_bob, &tom_bob_id, &mut bob_for_tom, &bob_tom_id);
     eprintln!("✅ Session established: Tom ↔ Bob");
 
     // ━━━ Part 3: Each person sends a message to each other ━━━━━━━━━━━━━━━━━
 
     // Alice → Tom
     send_and_verify(
-        &mut alice_for_tom, &mut tom_for_alice,
-        &alice_to_tom_addr, &tom_to_alice_addr,
+        &mut alice_for_tom,
+        &mut tom_for_alice,
+        &alice_to_tom_addr,
+        &tom_to_alice_addr,
         "Hi Tom, this is Alice!",
     );
     eprintln!("✅ Alice → Tom: 'Hi Tom, this is Alice!'");
 
     // Tom → Alice
     send_and_verify(
-        &mut tom_for_alice, &mut alice_for_tom,
-        &tom_to_alice_addr, &alice_to_tom_addr,
+        &mut tom_for_alice,
+        &mut alice_for_tom,
+        &tom_to_alice_addr,
+        &alice_to_tom_addr,
         "Hey Alice, Tom here!",
     );
     eprintln!("✅ Tom → Alice: 'Hey Alice, Tom here!'");
 
     // Alice → Bob
     send_and_verify(
-        &mut alice_for_bob, &mut bob_for_alice,
-        &alice_to_bob_addr, &bob_to_alice_addr,
+        &mut alice_for_bob,
+        &mut bob_for_alice,
+        &alice_to_bob_addr,
+        &bob_to_alice_addr,
         "Hello Bob, from Alice",
     );
     eprintln!("✅ Alice → Bob: 'Hello Bob, from Alice'");
 
     // Bob → Alice
     send_and_verify(
-        &mut bob_for_alice, &mut alice_for_bob,
-        &bob_to_alice_addr, &alice_to_bob_addr,
+        &mut bob_for_alice,
+        &mut alice_for_bob,
+        &bob_to_alice_addr,
+        &alice_to_bob_addr,
         "Hi Alice, Bob speaking",
     );
     eprintln!("✅ Bob → Alice: 'Hi Alice, Bob speaking'");
 
     // Tom → Bob
     send_and_verify(
-        &mut tom_for_bob, &mut bob_for_tom,
-        &tom_to_bob_addr, &bob_to_tom_addr,
+        &mut tom_for_bob,
+        &mut bob_for_tom,
+        &tom_to_bob_addr,
+        &bob_to_tom_addr,
         "Bob, this is Tom!",
     );
     eprintln!("✅ Tom → Bob: 'Bob, this is Tom!'");
 
     // Bob → Tom
     send_and_verify(
-        &mut bob_for_tom, &mut tom_for_bob,
-        &bob_to_tom_addr, &tom_to_bob_addr,
+        &mut bob_for_tom,
+        &mut tom_for_bob,
+        &bob_to_tom_addr,
+        &tom_to_bob_addr,
         "Tom, Bob here. Received!",
     );
     eprintln!("✅ Bob → Tom: 'Tom, Bob here. Received!'");
@@ -207,7 +223,9 @@ fn test_three_party_signal_and_mls() {
     // ━━━ Part 5: MLS Group messaging — each sends, others decrypt ━━━━━━━━━━
 
     // Alice sends to group
-    let alice_ct = alice_mls.encrypt(group_id, b"Group msg from Alice").unwrap();
+    let alice_ct = alice_mls
+        .encrypt(group_id, b"Group msg from Alice")
+        .unwrap();
 
     let (tom_pt, tom_sender) = tom_mls.decrypt(group_id, &alice_ct).unwrap();
     assert_eq!(String::from_utf8(tom_pt).unwrap(), "Group msg from Alice");

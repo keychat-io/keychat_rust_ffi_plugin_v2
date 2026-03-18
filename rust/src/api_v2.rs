@@ -9,8 +9,9 @@ use libkeychat::{
     receive_friend_request as lk_receive_friend_request, send_friend_request_persistent,
     unwrap_gift_wrap, AddressManager, DeviceId, Event, GenericSignedPreKey, Identity, IdentityKey,
     IdentityKeyPair, KCMessage, Keys, KyberPreKeyId, KyberPreKeyRecord, MlsParticipant,
-    MlsProvider, PreKeyId, PreKeyRecord, ProtocolAddress, PublicKey, SecretKey, SecureStorage,
-    SignalParticipant, SignalPreKeyMaterial, SignalPrivateKey, SignedPreKeyId, SignedPreKeyRecord,
+    MlsProvider, PreKeyId, PreKeyRecord, ProtocolAddress, PublicKey, RelayPoolNotification,
+    SecretKey, SecureStorage, SignalParticipant, SignalPreKeyMaterial, SignalPrivateKey,
+    SignedPreKeyId, SignedPreKeyRecord, Timestamp, Transport,
 };
 
 /// Serialize a nostr 0.37 Event to JSON string.
@@ -100,6 +101,10 @@ struct V2State {
     /// MLS participant (lazy-init on first MLS call, file-backed)
     mls: Option<MlsParticipant>,
     mls_db_path: String,
+    /// Nostr relay transport (lazy-init on first relay call)
+    transport: Option<Transport>,
+    /// Buffered incoming events from relay subscription
+    event_rx: Option<std::sync::mpsc::Receiver<String>>,
     rt: Runtime,
 }
 
@@ -355,6 +360,8 @@ pub fn init_v2(
         pending_frs,
         mls: None,
         mls_db_path,
+        transport: None,
+        event_rx: None,
         rt,
     });
     Ok(())
@@ -392,7 +399,13 @@ pub fn create_friend_request(
         // Save pending FR to DB
         {
             let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
-            save_pending_keys_to_db(&db, &request_id, state.device_id, &keys, &first_inbox_secret)?;
+            save_pending_keys_to_db(
+                &db,
+                &request_id,
+                state.device_id,
+                &keys,
+                &first_inbox_secret,
+            )?;
         }
 
         state.pending_frs.insert(
@@ -476,11 +489,7 @@ pub fn accept_friend_request(
 
         // Register peer address manager
         let mut addr_mgr = AddressManager::new();
-        addr_mgr.add_peer(
-            &signal_id,
-            Some(peer_first_inbox),
-            Some(peer_nostr_hex),
-        );
+        addr_mgr.add_peer(&signal_id, Some(peer_first_inbox), Some(peer_nostr_hex));
         persist_address_state(&state.storage, &signal_id, &addr_mgr)?;
 
         state
@@ -516,23 +525,20 @@ pub fn encrypt(
         // encrypt → persistent store auto-saves session to SQLCipher
         let ct = signal.encrypt(&remote_addr, plaintext.as_bytes())?;
 
-        let ciphertext_base64 = base64::Engine::encode(
-            &base64::engine::general_purpose::STANDARD,
-            &ct.bytes,
-        );
+        let ciphertext_base64 =
+            base64::Engine::encode(&base64::engine::general_purpose::STANDARD, &ct.bytes);
 
         let sender_address = ct.sender_address.clone().unwrap_or_default();
 
         // Update address manager + persist
-        let new_receiving =
-            if let Some(addr_mgr) = state.address_managers.get_mut(&peer_signal_id) {
-                let update =
-                    addr_mgr.on_encrypt(&peer_signal_id, ct.sender_address.as_deref())?;
-                persist_address_state(&state.storage, &peer_signal_id, addr_mgr)?;
-                update.new_receiving
-            } else {
-                Vec::new()
-            };
+        let new_receiving = if let Some(addr_mgr) = state.address_managers.get_mut(&peer_signal_id)
+        {
+            let update = addr_mgr.on_encrypt(&peer_signal_id, ct.sender_address.as_deref())?;
+            persist_address_state(&state.storage, &peer_signal_id, addr_mgr)?;
+            update.new_receiving
+        } else {
+            Vec::new()
+        };
 
         Ok(V2EncryptResult {
             ciphertext_base64,
@@ -573,18 +579,18 @@ pub fn decrypt(
         let sender_address = result.bob_derived_address.clone().unwrap_or_default();
 
         // Update address manager + persist
-        let new_receiving =
-            if let Some(addr_mgr) = state.address_managers.get_mut(&peer_signal_id) {
-                let update = addr_mgr.on_decrypt(
-                    &peer_signal_id,
-                    result.bob_derived_address.as_deref(),
-                    result.alice_addrs.as_deref(),
-                )?;
-                persist_address_state(&state.storage, &peer_signal_id, addr_mgr)?;
-                update.new_receiving
-            } else {
-                Vec::new()
-            };
+        let new_receiving = if let Some(addr_mgr) = state.address_managers.get_mut(&peer_signal_id)
+        {
+            let update = addr_mgr.on_decrypt(
+                &peer_signal_id,
+                result.bob_derived_address.as_deref(),
+                result.alice_addrs.as_deref(),
+            )?;
+            persist_address_state(&state.storage, &peer_signal_id, addr_mgr)?;
+            update.new_receiving
+        } else {
+            Vec::new()
+        };
 
         Ok(V2DecryptResult {
             plaintext,
@@ -645,10 +651,7 @@ pub fn stamp_event(event_json: String, cashu_token: String) -> Result<String> {
 
 // ─── Address Management ─────────────────────────────────────────────────────
 
-pub fn derive_receiving_address(
-    private_key_hex: String,
-    public_key_hex: String,
-) -> Result<String> {
+pub fn derive_receiving_address(private_key_hex: String, public_key_hex: String) -> Result<String> {
     let seed_key = format!("{}-{}", private_key_hex, public_key_hex);
     let address = derive_nostr_address_from_ratchet(&seed_key)?;
     Ok(address)
@@ -703,10 +706,7 @@ pub fn parse_message(json: String) -> Result<V2ParsedMessage> {
         "id": msg.id,
     }))?;
 
-    Ok(V2ParsedMessage {
-        kind,
-        content_json,
-    })
+    Ok(V2ParsedMessage { kind, content_json })
 }
 
 // ─── Peer management helpers ────────────────────────────────────────────────
@@ -928,7 +928,10 @@ pub fn mls_remove_members(group_id: String, member_ids_json: String) -> Result<S
         let member_ids: Vec<String> = serde_json::from_str(&member_ids_json)?;
         let indices: Vec<_> = member_ids
             .iter()
-            .map(|id| mls.find_member_index(&group_id, id).map_err(|e| anyhow!("{}", e)))
+            .map(|id| {
+                mls.find_member_index(&group_id, id)
+                    .map_err(|e| anyhow!("{}", e))
+            })
             .collect::<Result<Vec<_>>>()?;
         let commit = mls.remove_members(&group_id, &indices)?;
         Ok(base64::engine::general_purpose::STANDARD.encode(&commit))
@@ -1023,4 +1026,168 @@ pub fn mls_group_info(group_id: String) -> Result<V2MlsGroupInfo> {
             )?,
         })
     })
+}
+
+// ─── Relay Transport ────────────────────────────────────────────────────────
+
+/// Connect to Nostr relays.
+/// `relay_urls_json`: JSON array of relay URLs, e.g. `["wss://relay.damus.io","wss://relay.keychat.io"]`
+pub fn relay_connect(relay_urls_json: String) -> Result<()> {
+    with_state(|state| {
+        let urls: Vec<String> = serde_json::from_str(&relay_urls_json)
+            .map_err(|e| anyhow!("invalid relay URLs JSON: {}", e))?;
+
+        let transport = state.rt.block_on(async {
+            let t = Transport::new(state.identity.keys())
+                .await
+                .map_err(|e| anyhow!("failed to create transport: {}", e))?;
+            for url in &urls {
+                t.add_relay(url)
+                    .await
+                    .map_err(|e| anyhow!("failed to add relay {}: {}", url, e))?;
+            }
+            t.connect().await;
+            Ok::<Transport, anyhow::Error>(t)
+        })?;
+
+        state.transport = Some(transport);
+        Ok(())
+    })
+}
+
+/// Subscribe to kind:1059 events for the given pubkeys.
+/// `pubkeys_json`: JSON array of hex pubkeys to listen on.
+/// `since_timestamp`: Unix timestamp (0 = no filter).
+/// Starts a background listener that buffers incoming events.
+pub fn relay_subscribe(pubkeys_json: String, since_timestamp: u64) -> Result<()> {
+    with_state(|state| {
+        let transport = state
+            .transport
+            .as_ref()
+            .ok_or_else(|| anyhow!("relay not connected. Call relay_connect() first."))?;
+
+        let pubkeys: Vec<String> = serde_json::from_str(&pubkeys_json)
+            .map_err(|e| anyhow!("invalid pubkeys JSON: {}", e))?;
+
+        let pks: Vec<PublicKey> = pubkeys
+            .iter()
+            .map(|hex| {
+                PublicKey::from_hex(hex).map_err(|e| anyhow!("invalid pubkey {}: {}", hex, e))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        let since = if since_timestamp > 0 {
+            Some(Timestamp::from(since_timestamp))
+        } else {
+            None
+        };
+
+        state.rt.block_on(async {
+            transport
+                .subscribe(pks, since)
+                .await
+                .map_err(|e| anyhow!("subscribe failed: {}", e))
+        })?;
+
+        // Start background event listener
+        let client = transport.client().clone();
+        let (tx, rx) = std::sync::mpsc::channel::<String>();
+        state.event_rx = Some(rx);
+
+        state.rt.spawn(async move {
+            let _ = client
+                .handle_notifications(|notification| {
+                    let tx = tx.clone();
+                    async move {
+                        if let RelayPoolNotification::Event { event, .. } = notification {
+                            let json = serde_json::to_string(&*event).unwrap_or_default();
+                            let _ = tx.send(json);
+                        }
+                        Ok(false) // false = keep listening
+                    }
+                })
+                .await;
+        });
+
+        Ok(())
+    })
+}
+
+/// Fetch the next buffered relay event (non-blocking).
+/// Returns event JSON or empty string if no event available.
+pub fn relay_next_event() -> Result<String> {
+    with_state(|state| {
+        if let Some(rx) = &state.event_rx {
+            match rx.try_recv() {
+                Ok(event_json) => Ok(event_json),
+                Err(std::sync::mpsc::TryRecvError::Empty) => Ok(String::new()),
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    Err(anyhow!("event listener disconnected"))
+                }
+            }
+        } else {
+            Ok(String::new())
+        }
+    })
+}
+
+/// Fetch the next relay event, blocking up to `timeout_ms` milliseconds.
+/// Returns event JSON or empty string on timeout.
+pub fn relay_next_event_blocking(timeout_ms: u64) -> Result<String> {
+    with_state(|state| {
+        if let Some(rx) = &state.event_rx {
+            match rx.recv_timeout(std::time::Duration::from_millis(timeout_ms)) {
+                Ok(event_json) => Ok(event_json),
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => Ok(String::new()),
+                Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => {
+                    Err(anyhow!("event listener disconnected"))
+                }
+            }
+        } else {
+            Ok(String::new())
+        }
+    })
+}
+
+/// Publish an event to all connected relays.
+/// Returns the event ID hex on success.
+pub fn relay_publish(event_json: String) -> Result<String> {
+    with_state(|state| {
+        let transport = state
+            .transport
+            .as_ref()
+            .ok_or_else(|| anyhow!("relay not connected. Call relay_connect() first."))?;
+
+        let event = event_from_json(&event_json)?;
+
+        let event_id = state.rt.block_on(async {
+            transport
+                .publish_event(event)
+                .await
+                .map_err(|e| anyhow!("publish failed: {}", e))
+        })?;
+
+        Ok(event_id.to_hex())
+    })
+}
+
+/// Disconnect from all relays.
+pub fn relay_disconnect() -> Result<()> {
+    with_state(|state| {
+        if let Some(transport) = state.transport.take() {
+            state.event_rx = None;
+            state.rt.block_on(async {
+                transport
+                    .disconnect()
+                    .await
+                    .map_err(|e| anyhow!("disconnect failed: {}", e))
+            })?;
+        }
+        Ok(())
+    })
+}
+
+/// Check if relay transport is connected.
+pub fn relay_is_connected() -> Result<bool> {
+    with_state(|state| Ok(state.transport.is_some()))
 }

@@ -1,8 +1,8 @@
 //! FFI return value structure tests.
 //! Verifies that all api_v2 functions return correct types and fields.
 
-use keychat_rust_ffi_plugin_v2::api_v2::*;
 use base64::Engine as _;
+use keychat_rust_ffi_plugin_v2::api_v2::*;
 
 // ─── KCMessage V2 Format ────────────────────────────────────────────────────
 
@@ -14,11 +14,17 @@ fn test_build_text_message_structure() {
     // Must have v:2
     assert_eq!(parsed["v"], 2, "KCMessage must have v:2");
     // Must have kind
-    assert!(parsed.get("kind").is_some(), "KCMessage must have kind field");
+    assert!(
+        parsed.get("kind").is_some(),
+        "KCMessage must have kind field"
+    );
     // kind should be "text" or text content should be present
-    let has_text = parsed.get("text").is_some()
-        || parsed.get("kind").and_then(|k| k.as_str()) == Some("text");
-    assert!(has_text, "Text message must indicate text kind. Got: {json}");
+    let has_text =
+        parsed.get("text").is_some() || parsed.get("kind").and_then(|k| k.as_str()) == Some("text");
+    assert!(
+        has_text,
+        "Text message must indicate text kind. Got: {json}"
+    );
 }
 
 #[test]
@@ -107,9 +113,18 @@ fn test_init_v2_and_create_friend_request() {
                 Ok(fr) => {
                     // Verify V2FriendRequestResult fields
                     assert!(!fr.event_json.is_empty(), "event_json must not be empty");
-                    assert!(!fr.first_inbox_pubkey.is_empty(), "first_inbox_pubkey must not be empty");
-                    assert!(!fr.first_inbox_secret.is_empty(), "first_inbox_secret must not be empty");
-                    assert!(!fr.signal_identity_hex.is_empty(), "signal_identity_hex must not be empty");
+                    assert!(
+                        !fr.first_inbox_pubkey.is_empty(),
+                        "first_inbox_pubkey must not be empty"
+                    );
+                    assert!(
+                        !fr.first_inbox_secret.is_empty(),
+                        "first_inbox_secret must not be empty"
+                    );
+                    assert!(
+                        !fr.signal_identity_hex.is_empty(),
+                        "signal_identity_hex must not be empty"
+                    );
 
                     // event_json should be valid JSON
                     let event: serde_json::Value = serde_json::from_str(&fr.event_json)
@@ -128,12 +143,18 @@ fn test_init_v2_and_create_friend_request() {
                         "signal_identity_hex should be even-length hex"
                     );
                     assert!(
-                        fr.signal_identity_hex.chars().all(|c| c.is_ascii_hexdigit()),
+                        fr.signal_identity_hex
+                            .chars()
+                            .all(|c| c.is_ascii_hexdigit()),
                         "signal_identity_hex should be hex chars only"
                     );
 
-                    eprintln!("✅ V2FriendRequestResult: event={}bytes inbox={} signal_id={}",
-                        fr.event_json.len(), fr.first_inbox_pubkey, &fr.signal_identity_hex[..16]);
+                    eprintln!(
+                        "✅ V2FriendRequestResult: event={}bytes inbox={} signal_id={}",
+                        fr.event_json.len(),
+                        fr.first_inbox_pubkey,
+                        &fr.signal_identity_hex[..16]
+                    );
                 }
                 Err(e) => eprintln!("create_friend_request error: {e}"),
             }
@@ -173,8 +194,8 @@ fn test_fetch_relay_fees_structure() {
     match result {
         Ok(json) => {
             // Must be valid JSON
-            let parsed: serde_json::Value = serde_json::from_str(&json)
-                .expect("Relay fees must be valid JSON");
+            let parsed: serde_json::Value =
+                serde_json::from_str(&json).expect("Relay fees must be valid JSON");
             assert!(parsed.is_object(), "Relay fees must be a JSON object");
             eprintln!("✅ Relay fees: {}", &json[..80.min(json.len())]);
         }
@@ -187,7 +208,10 @@ fn test_fetch_relay_fees_structure() {
 #[test]
 fn test_resolve_send_address_no_peer() {
     let result = resolve_send_address("nonexistent".into());
-    assert!(result.is_err(), "Resolve address for unknown peer should fail");
+    assert!(
+        result.is_err(),
+        "Resolve address for unknown peer should fail"
+    );
 }
 
 // ─── MLS ────────────────────────────────────────────────────────────────────
@@ -195,7 +219,12 @@ fn test_resolve_send_address_no_peer() {
 #[test]
 fn test_mls_init() {
     // Need init_v2 first
-    let _ = init_v2("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(), ":memory:".into(), "test-key".into(), 1);
+    let _ = init_v2(
+        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
+        ":memory:".into(),
+        "test-key".into(),
+        1,
+    );
     let result = mls_init();
     match result {
         Ok(()) => eprintln!("✅ MLS init succeeded"),
@@ -205,7 +234,12 @@ fn test_mls_init() {
 
 #[test]
 fn test_mls_generate_key_package_structure() {
-    let _ = init_v2("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(), ":memory:".into(), "test-key".into(), 1);
+    let _ = init_v2(
+        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
+        ":memory:".into(),
+        "test-key".into(),
+        1,
+    );
     let _ = mls_init();
 
     match mls_generate_key_package() {
@@ -214,16 +248,24 @@ fn test_mls_generate_key_package_structure() {
             // Must be valid base64
             let decoded = base64::engine::general_purpose::STANDARD.decode(&kp_base64);
             assert!(decoded.is_ok(), "KeyPackage must be valid base64");
-            eprintln!("✅ KeyPackage: {} bytes (base64 len={})", decoded.unwrap().len(), kp_base64.len());
+            eprintln!(
+                "✅ KeyPackage: {} bytes (base64 len={})",
+                decoded.unwrap().len(),
+                kp_base64.len()
+            );
         }
         Err(e) => eprintln!("KeyPackage error: {e}"),
     }
 }
 
-
 #[test]
 fn test_mls_create_group_and_encrypt() {
-    let _ = init_v2("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(), ":memory:".into(), "test-key".into(), 1);
+    let _ = init_v2(
+        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
+        ":memory:".into(),
+        "test-key".into(),
+        1,
+    );
     let _ = mls_init();
 
     let group_id = "test-group-001";
@@ -245,7 +287,10 @@ fn test_mls_create_group_and_encrypt() {
             // Members
             match mls_group_members(group_id.into()) {
                 Ok(members) => {
-                    assert!(!members.is_empty(), "Group must have at least 1 member (self)");
+                    assert!(
+                        !members.is_empty(),
+                        "Group must have at least 1 member (self)"
+                    );
                     eprintln!("✅ Members: {:?}", members);
                 }
                 Err(e) => eprintln!("Group members error: {e}"),
@@ -283,10 +328,18 @@ fn test_mls_decrypt_result_structure() {
 
 #[test]
 fn test_mls_add_members_result_structure() {
-    let _ = init_v2("abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(), ":memory:".into(), "test-key".into(), 1);
+    let _ = init_v2(
+        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
+        ":memory:".into(),
+        "test-key".into(),
+        1,
+    );
     let _ = mls_init();
 
     // Empty key packages should fail
     let result = mls_add_members("nonexistent".into(), "[]".into());
-    assert!(result.is_err(), "Add members to nonexistent group should fail");
+    assert!(
+        result.is_err(),
+        "Add members to nonexistent group should fail"
+    );
 }

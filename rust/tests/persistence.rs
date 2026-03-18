@@ -3,13 +3,13 @@
 //! These tests use libkeychat directly (not the FFI layer) to avoid
 //! global V2 Mutex / tokio runtime contention issues.
 
-use std::sync::{Arc, Mutex};
 use libkeychat::{
     generate_prekey_material, AddressManager, DeviceId, GenericSignedPreKey, IdentityKey,
     IdentityKeyPair, KyberPreKeyId, KyberPreKeyRecord, PreKeyId, PreKeyRecord, ProtocolAddress,
     SecureStorage, SignalParticipant, SignalPreKeyMaterial, SignalPrivateKey, SignedPreKeyId,
     SignedPreKeyRecord,
 };
+use std::sync::{Arc, Mutex};
 
 const DB_KEY: &str = "test-passphrase-2024";
 
@@ -81,8 +81,12 @@ fn test_signal_session_identity_survives_restart() {
         let mut bob = SignalParticipant::new("bob", 1).unwrap();
 
         let mut alice = SignalParticipant::persistent(
-            alice_name.into(), 1, alice_keys.clone(), storage.clone(),
-        ).unwrap();
+            alice_name.into(),
+            1,
+            alice_keys.clone(),
+            storage.clone(),
+        )
+        .unwrap();
 
         alice_signal_id = alice.identity_public_key_hex();
         bob_signal_id = bob.identity_public_key_hex();
@@ -113,8 +117,12 @@ fn test_signal_session_identity_survives_restart() {
         assert_eq!(dev_id, 1);
 
         let alice_restored = SignalParticipant::persistent(
-            alice_name.into(), dev_id, restored_keys, storage.clone(),
-        ).unwrap();
+            alice_name.into(),
+            dev_id,
+            restored_keys,
+            storage.clone(),
+        )
+        .unwrap();
 
         // Identity key must survive restart
         assert_eq!(
@@ -157,9 +165,18 @@ fn test_key_material_roundtrip() {
         let (dev_id, loaded_keys) = load_keys(&db, "peer-abc");
         assert_eq!(dev_id, 2);
         assert_eq!(loaded_keys.registration_id, original_keys.registration_id);
-        assert_eq!(u32::from(loaded_keys.signed_prekey_id), u32::from(original_keys.signed_prekey_id));
-        assert_eq!(u32::from(loaded_keys.prekey_id), u32::from(original_keys.prekey_id));
-        assert_eq!(u32::from(loaded_keys.kyber_prekey_id), u32::from(original_keys.kyber_prekey_id));
+        assert_eq!(
+            u32::from(loaded_keys.signed_prekey_id),
+            u32::from(original_keys.signed_prekey_id)
+        );
+        assert_eq!(
+            u32::from(loaded_keys.prekey_id),
+            u32::from(original_keys.prekey_id)
+        );
+        assert_eq!(
+            u32::from(loaded_keys.kyber_prekey_id),
+            u32::from(original_keys.kyber_prekey_id)
+        );
         assert_eq!(
             loaded_keys.identity_key_pair.identity_key().serialize(),
             original_keys.identity_key_pair.identity_key().serialize(),
@@ -192,7 +209,8 @@ fn test_pending_fr_roundtrip() {
     {
         let db = SecureStorage::open(&db_path, DB_KEY).unwrap();
         db.save_pending_fr(
-            "fr-001", 1,
+            "fr-001",
+            1,
             &keys.identity_key_pair.identity_key().serialize(),
             &keys.identity_key_pair.private_key().serialize(),
             keys.registration_id,
@@ -203,7 +221,8 @@ fn test_pending_fr_roundtrip() {
             u32::from(keys.kyber_prekey_id),
             &keys.kyber_prekey.serialize().unwrap(),
             "secret-inbox-hex",
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     // Reopen
@@ -245,9 +264,18 @@ fn test_event_dedup_persists() {
     // Reopen
     {
         let db = SecureStorage::open(&db_path, DB_KEY).unwrap();
-        assert!(db.is_event_processed("evt-aaa").unwrap(), "evt-aaa must survive");
-        assert!(db.is_event_processed("evt-bbb").unwrap(), "evt-bbb must survive");
-        assert!(!db.is_event_processed("evt-ccc").unwrap(), "evt-ccc was never marked");
+        assert!(
+            db.is_event_processed("evt-aaa").unwrap(),
+            "evt-aaa must survive"
+        );
+        assert!(
+            db.is_event_processed("evt-bbb").unwrap(),
+            "evt-bbb must survive"
+        );
+        assert!(
+            !db.is_event_processed("evt-ccc").unwrap(),
+            "evt-ccc was never marked"
+        );
     }
 
     cleanup(&db_path);
@@ -327,11 +355,15 @@ fn test_two_party_signal_full_lifecycle() {
         let bob_keys = generate_prekey_material().unwrap();
 
         let mut alice = SignalParticipant::persistent(
-            "alice".into(), 1, alice_keys.clone(), alice_storage.clone(),
-        ).unwrap();
-        let mut bob = SignalParticipant::persistent(
-            "bob".into(), 1, bob_keys.clone(), bob_storage.clone(),
-        ).unwrap();
+            "alice".into(),
+            1,
+            alice_keys.clone(),
+            alice_storage.clone(),
+        )
+        .unwrap();
+        let mut bob =
+            SignalParticipant::persistent("bob".into(), 1, bob_keys.clone(), bob_storage.clone())
+                .unwrap();
 
         alice_id = alice.identity_public_key_hex();
         bob_id = bob.identity_public_key_hex();
@@ -355,7 +387,10 @@ fn test_two_party_signal_full_lifecycle() {
         // Alice → Bob: another message
         let ct3 = alice.encrypt(&bob_addr, b"msg3: how are you").unwrap();
         let pt3 = bob.decrypt(&alice_addr, &ct3.bytes).unwrap();
-        assert_eq!(String::from_utf8(pt3.plaintext).unwrap(), "msg3: how are you");
+        assert_eq!(
+            String::from_utf8(pt3.plaintext).unwrap(),
+            "msg3: how are you"
+        );
 
         // Save both to DB
         save_keys(&alice_storage.lock().unwrap(), &bob_id, 1, &alice_keys);
@@ -372,12 +407,11 @@ fn test_two_party_signal_full_lifecycle() {
         let (_, alice_keys) = load_keys(&alice_storage.lock().unwrap(), &bob_id);
         let (_, bob_keys) = load_keys(&bob_storage.lock().unwrap(), &alice_id);
 
-        let mut alice = SignalParticipant::persistent(
-            "alice".into(), 1, alice_keys, alice_storage.clone(),
-        ).unwrap();
-        let mut bob = SignalParticipant::persistent(
-            "bob".into(), 1, bob_keys, bob_storage.clone(),
-        ).unwrap();
+        let mut alice =
+            SignalParticipant::persistent("alice".into(), 1, alice_keys, alice_storage.clone())
+                .unwrap();
+        let mut bob =
+            SignalParticipant::persistent("bob".into(), 1, bob_keys, bob_storage.clone()).unwrap();
 
         // Identity keys must survive
         assert_eq!(alice.identity_public_key_hex(), alice_id);
@@ -387,7 +421,9 @@ fn test_two_party_signal_full_lifecycle() {
         let alice_addr = ProtocolAddress::new(alice_id.clone(), DeviceId::new(1).unwrap());
 
         // Continue conversation: Bob → Alice (tests that session state survived)
-        let ct4 = bob.encrypt(&alice_addr, b"msg4: survived restart!").unwrap();
+        let ct4 = bob
+            .encrypt(&alice_addr, b"msg4: survived restart!")
+            .unwrap();
         let pt4 = alice.decrypt(&bob_addr, &ct4.bytes).unwrap();
         assert_eq!(
             String::from_utf8(pt4.plaintext).unwrap(),
@@ -396,7 +432,9 @@ fn test_two_party_signal_full_lifecycle() {
         );
 
         // Alice → Bob
-        let ct5 = alice.encrypt(&bob_addr, b"msg5: persistence works!").unwrap();
+        let ct5 = alice
+            .encrypt(&bob_addr, b"msg5: persistence works!")
+            .unwrap();
         let pt5 = bob.decrypt(&alice_addr, &ct5.bytes).unwrap();
         assert_eq!(
             String::from_utf8(pt5.plaintext).unwrap(),
@@ -419,8 +457,10 @@ fn test_peer_mapping_persists() {
 
     {
         let db = SecureStorage::open(&db_path, DB_KEY).unwrap();
-        db.save_peer_mapping("npub1alice", "signal-alice", "Alice").unwrap();
-        db.save_peer_mapping("npub1bob", "signal-bob", "Bob").unwrap();
+        db.save_peer_mapping("npub1alice", "signal-alice", "Alice")
+            .unwrap();
+        db.save_peer_mapping("npub1bob", "signal-bob", "Bob")
+            .unwrap();
     }
 
     {
