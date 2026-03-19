@@ -10,7 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PendingFriendRequest`, `V2State`, `V2`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
 
-Future<void> initV2({
+Future<String> initV2({
   required String nostrPrivkeyHex,
   required String dbPath,
   required String dbKey,
@@ -22,59 +22,91 @@ Future<void> initV2({
   deviceId: deviceId,
 );
 
+/// Destroy an identity and release its resources.
+Future<void> destroyIdentity({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2DestroyIdentity(pubkey: pubkey);
+
+/// List all initialized identity pubkeys.
+Future<List<String>> listIdentities() =>
+    RustLib.instance.api.crateApiV2ListIdentities();
+
 Future<V2FriendRequestResult> createFriendRequest({
+  required String pubkey,
   required String peerNpub,
   required String displayName,
 }) => RustLib.instance.api.crateApiV2CreateFriendRequest(
+  pubkey: pubkey,
   peerNpub: peerNpub,
   displayName: displayName,
 );
 
 Future<V2IncomingFriendRequest> receiveFriendRequest({
+  required String pubkey,
   required String eventJson,
-}) => RustLib.instance.api.crateApiV2ReceiveFriendRequest(eventJson: eventJson);
+}) => RustLib.instance.api.crateApiV2ReceiveFriendRequest(
+  pubkey: pubkey,
+  eventJson: eventJson,
+);
 
 Future<V2AcceptResult> acceptFriendRequest({
+  required String pubkey,
   required String eventJson,
   required String myDisplayName,
 }) => RustLib.instance.api.crateApiV2AcceptFriendRequest(
+  pubkey: pubkey,
   eventJson: eventJson,
   myDisplayName: myDisplayName,
 );
 
 Future<V2EncryptResult> encrypt({
+  required String pubkey,
   required String peerSignalId,
   required String plaintext,
   required int remoteDeviceId,
 }) => RustLib.instance.api.crateApiV2Encrypt(
+  pubkey: pubkey,
   peerSignalId: peerSignalId,
   plaintext: plaintext,
   remoteDeviceId: remoteDeviceId,
 );
 
 Future<V2DecryptResult> decrypt({
+  required String pubkey,
   required String peerSignalId,
   required String ciphertextBase64,
   required int remoteDeviceId,
 }) => RustLib.instance.api.crateApiV2Decrypt(
+  pubkey: pubkey,
   peerSignalId: peerSignalId,
   ciphertextBase64: ciphertextBase64,
   remoteDeviceId: remoteDeviceId,
 );
 
 Future<String> wrapEvent({
+  required String pubkey,
   required String innerContent,
   required String receiverNpub,
 }) => RustLib.instance.api.crateApiV2WrapEvent(
+  pubkey: pubkey,
   innerContent: innerContent,
   receiverNpub: receiverNpub,
 );
 
-Future<V2UnwrappedEvent> unwrapEvent({required String eventJson}) =>
-    RustLib.instance.api.crateApiV2UnwrapEvent(eventJson: eventJson);
+Future<V2UnwrappedEvent> unwrapEvent({
+  required String pubkey,
+  required String eventJson,
+}) => RustLib.instance.api.crateApiV2UnwrapEvent(
+  pubkey: pubkey,
+  eventJson: eventJson,
+);
 
-Future<String> fetchRelayFees({required String relayUrl}) =>
-    RustLib.instance.api.crateApiV2FetchRelayFees(relayUrl: relayUrl);
+Future<String> fetchRelayFees({
+  required String pubkey,
+  required String relayUrl,
+}) => RustLib.instance.api.crateApiV2FetchRelayFees(
+  pubkey: pubkey,
+  relayUrl: relayUrl,
+);
 
 Future<String> stampEvent({
   required String eventJson,
@@ -92,10 +124,13 @@ Future<String> deriveReceivingAddress({
   publicKeyHex: publicKeyHex,
 );
 
-Future<List<String>> getAllReceivingAddresses({required String peerSignalId}) =>
-    RustLib.instance.api.crateApiV2GetAllReceivingAddresses(
-      peerSignalId: peerSignalId,
-    );
+Future<List<String>> getAllReceivingAddresses({
+  required String pubkey,
+  required String peerSignalId,
+}) => RustLib.instance.api.crateApiV2GetAllReceivingAddresses(
+  pubkey: pubkey,
+  peerSignalId: peerSignalId,
+);
 
 Future<String> buildTextMessage({required String text}) =>
     RustLib.instance.api.crateApiV2BuildTextMessage(text: text);
@@ -109,125 +144,197 @@ Future<V2ParsedMessage> parseMessage({required String json}) =>
     RustLib.instance.api.crateApiV2ParseMessage(json: json);
 
 Future<void> registerPeer({
+  required String pubkey,
   required String peerSignalId,
   required String peerNostrPubkey,
   String? firstInbox,
 }) => RustLib.instance.api.crateApiV2RegisterPeer(
+  pubkey: pubkey,
   peerSignalId: peerSignalId,
   peerNostrPubkey: peerNostrPubkey,
   firstInbox: firstInbox,
 );
 
-Future<String> resolveSendAddress({required String peerSignalId}) => RustLib
-    .instance
-    .api
-    .crateApiV2ResolveSendAddress(peerSignalId: peerSignalId);
+Future<String> resolveSendAddress({
+  required String pubkey,
+  required String peerSignalId,
+}) => RustLib.instance.api.crateApiV2ResolveSendAddress(
+  pubkey: pubkey,
+  peerSignalId: peerSignalId,
+);
 
 /// List all known peers from DB.
-Future<List<String>> listPeers() => RustLib.instance.api.crateApiV2ListPeers();
+Future<List<String>> listPeers({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2ListPeers(pubkey: pubkey);
 
 /// Check if we have a session with a peer.
-Future<bool> hasPeerSession({required String peerSignalId}) =>
-    RustLib.instance.api.crateApiV2HasPeerSession(peerSignalId: peerSignalId);
+Future<bool> hasPeerSession({
+  required String pubkey,
+  required String peerSignalId,
+}) => RustLib.instance.api.crateApiV2HasPeerSession(
+  pubkey: pubkey,
+  peerSignalId: peerSignalId,
+);
 
 /// Delete a peer and all associated state.
-Future<void> deletePeer({required String peerSignalId}) =>
-    RustLib.instance.api.crateApiV2DeletePeer(peerSignalId: peerSignalId);
+Future<void> deletePeer({
+  required String pubkey,
+  required String peerSignalId,
+}) => RustLib.instance.api.crateApiV2DeletePeer(
+  pubkey: pubkey,
+  peerSignalId: peerSignalId,
+);
 
 /// Check if an event was already processed (deduplication).
-Future<bool> isEventProcessed({required String eventId}) =>
-    RustLib.instance.api.crateApiV2IsEventProcessed(eventId: eventId);
+Future<bool> isEventProcessed({
+  required String pubkey,
+  required String eventId,
+}) => RustLib.instance.api.crateApiV2IsEventProcessed(
+  pubkey: pubkey,
+  eventId: eventId,
+);
 
 /// Mark an event as processed.
-Future<void> markEventProcessed({required String eventId}) =>
-    RustLib.instance.api.crateApiV2MarkEventProcessed(eventId: eventId);
+Future<void> markEventProcessed({
+  required String pubkey,
+  required String eventId,
+}) => RustLib.instance.api.crateApiV2MarkEventProcessed(
+  pubkey: pubkey,
+  eventId: eventId,
+);
 
 /// Get the current device ID.
-Future<int> getDeviceId() => RustLib.instance.api.crateApiV2GetDeviceId();
+Future<int> getDeviceId({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2GetDeviceId(pubkey: pubkey);
 
 /// Initialize MLS subsystem.
-Future<void> mlsInit() => RustLib.instance.api.crateApiV2MlsInit();
+Future<void> mlsInit({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2MlsInit(pubkey: pubkey);
 
 /// Generate a KeyPackage (base64-encoded).
-Future<String> mlsGenerateKeyPackage() =>
-    RustLib.instance.api.crateApiV2MlsGenerateKeyPackage();
+Future<String> mlsGenerateKeyPackage({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2MlsGenerateKeyPackage(pubkey: pubkey);
 
 /// Create a new MLS group.
-Future<void> mlsCreateGroup({required String groupId, required String name}) =>
-    RustLib.instance.api.crateApiV2MlsCreateGroup(groupId: groupId, name: name);
+Future<void> mlsCreateGroup({
+  required String pubkey,
+  required String groupId,
+  required String name,
+}) => RustLib.instance.api.crateApiV2MlsCreateGroup(
+  pubkey: pubkey,
+  groupId: groupId,
+  name: name,
+);
 
 /// Add members. key_packages_base64_json: JSON array of base64 KeyPackage bytes.
 Future<V2MlsAddMembersResult> mlsAddMembers({
+  required String pubkey,
   required String groupId,
   required String keyPackagesBase64Json,
 }) => RustLib.instance.api.crateApiV2MlsAddMembers(
+  pubkey: pubkey,
   groupId: groupId,
   keyPackagesBase64Json: keyPackagesBase64Json,
 );
 
 /// Join a group via Welcome (base64). Returns group_id.
-Future<String> mlsJoinGroup({required String welcomeBase64}) =>
-    RustLib.instance.api.crateApiV2MlsJoinGroup(welcomeBase64: welcomeBase64);
+Future<String> mlsJoinGroup({
+  required String pubkey,
+  required String welcomeBase64,
+}) => RustLib.instance.api.crateApiV2MlsJoinGroup(
+  pubkey: pubkey,
+  welcomeBase64: welcomeBase64,
+);
 
 /// Encrypt plaintext for MLS group. Returns ciphertext base64.
 Future<String> mlsEncrypt({
+  required String pubkey,
   required String groupId,
   required String plaintext,
 }) => RustLib.instance.api.crateApiV2MlsEncrypt(
+  pubkey: pubkey,
   groupId: groupId,
   plaintext: plaintext,
 );
 
 /// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
 Future<V2MlsDecryptResult> mlsDecrypt({
+  required String pubkey,
   required String groupId,
   required String ciphertextBase64,
 }) => RustLib.instance.api.crateApiV2MlsDecrypt(
+  pubkey: pubkey,
   groupId: groupId,
   ciphertextBase64: ciphertextBase64,
 );
 
 /// Remove members by nostr ID (JSON array). Returns commit base64.
 Future<String> mlsRemoveMembers({
+  required String pubkey,
   required String groupId,
   required String memberIdsJson,
 }) => RustLib.instance.api.crateApiV2MlsRemoveMembers(
+  pubkey: pubkey,
   groupId: groupId,
   memberIdsJson: memberIdsJson,
 );
 
 /// Self-update (key rotation). Returns commit base64.
-Future<String> mlsSelfUpdate({required String groupId}) =>
-    RustLib.instance.api.crateApiV2MlsSelfUpdate(groupId: groupId);
+Future<String> mlsSelfUpdate({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiV2MlsSelfUpdate(
+  pubkey: pubkey,
+  groupId: groupId,
+);
 
 /// Leave a group. Returns proposal base64.
-Future<String> mlsLeaveGroup({required String groupId}) =>
-    RustLib.instance.api.crateApiV2MlsLeaveGroup(groupId: groupId);
+Future<String> mlsLeaveGroup({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiV2MlsLeaveGroup(
+  pubkey: pubkey,
+  groupId: groupId,
+);
 
 /// Process incoming MLS Commit (base64).
 Future<void> mlsProcessCommit({
+  required String pubkey,
   required String groupId,
   required String commitBase64,
 }) => RustLib.instance.api.crateApiV2MlsProcessCommit(
+  pubkey: pubkey,
   groupId: groupId,
   commitBase64: commitBase64,
 );
 
 /// Derive shared MLS temp inbox address.
-Future<String> mlsDeriveTempInbox({required String groupId}) =>
-    RustLib.instance.api.crateApiV2MlsDeriveTempInbox(groupId: groupId);
+Future<String> mlsDeriveTempInbox({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiV2MlsDeriveTempInbox(
+  pubkey: pubkey,
+  groupId: groupId,
+);
 
 /// List group members (nostr IDs).
-Future<List<String>> mlsGroupMembers({required String groupId}) =>
-    RustLib.instance.api.crateApiV2MlsGroupMembers(groupId: groupId);
+Future<List<String>> mlsGroupMembers({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiV2MlsGroupMembers(
+  pubkey: pubkey,
+  groupId: groupId,
+);
 
 /// Update group context. Returns commit base64.
 Future<String> mlsUpdateGroup({
+  required String pubkey,
   required String groupId,
   String? name,
   String? status,
   String? adminPubkeysJson,
 }) => RustLib.instance.api.crateApiV2MlsUpdateGroup(
+  pubkey: pubkey,
   groupId: groupId,
   name: name,
   status: status,
@@ -235,48 +342,70 @@ Future<String> mlsUpdateGroup({
 );
 
 /// Get group info.
-Future<V2MlsGroupInfo> mlsGroupInfo({required String groupId}) =>
-    RustLib.instance.api.crateApiV2MlsGroupInfo(groupId: groupId);
+Future<V2MlsGroupInfo> mlsGroupInfo({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiV2MlsGroupInfo(
+  pubkey: pubkey,
+  groupId: groupId,
+);
 
 /// Connect to Nostr relays.
 /// `relay_urls_json`: JSON array of relay URLs, e.g. `["wss://relay.damus.io","wss://relay.keychat.io"]`
-Future<void> relayConnect({required String relayUrlsJson}) =>
-    RustLib.instance.api.crateApiV2RelayConnect(relayUrlsJson: relayUrlsJson);
+Future<void> relayConnect({
+  required String pubkey,
+  required String relayUrlsJson,
+}) => RustLib.instance.api.crateApiV2RelayConnect(
+  pubkey: pubkey,
+  relayUrlsJson: relayUrlsJson,
+);
 
 /// Subscribe to kind:1059 events for the given pubkeys.
 /// `pubkeys_json`: JSON array of hex pubkeys to listen on.
 /// `since_timestamp`: Unix timestamp (0 = no filter).
 /// Starts a background listener that buffers incoming events.
 Future<void> relaySubscribe({
+  required String pubkey,
   required String pubkeysJson,
   required BigInt sinceTimestamp,
 }) => RustLib.instance.api.crateApiV2RelaySubscribe(
+  pubkey: pubkey,
   pubkeysJson: pubkeysJson,
   sinceTimestamp: sinceTimestamp,
 );
 
 /// Fetch the next buffered relay event (non-blocking).
 /// Returns event JSON or empty string if no event available.
-Future<String> relayNextEvent() =>
-    RustLib.instance.api.crateApiV2RelayNextEvent();
+Future<String> relayNextEvent({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2RelayNextEvent(pubkey: pubkey);
 
 /// Fetch the next relay event, blocking up to `timeout_ms` milliseconds.
 /// Returns event JSON or empty string on timeout.
-Future<String> relayNextEventBlocking({required BigInt timeoutMs}) =>
-    RustLib.instance.api.crateApiV2RelayNextEventBlocking(timeoutMs: timeoutMs);
+Future<String> relayNextEventBlocking({
+  required String pubkey,
+  required BigInt timeoutMs,
+}) => RustLib.instance.api.crateApiV2RelayNextEventBlocking(
+  pubkey: pubkey,
+  timeoutMs: timeoutMs,
+);
 
 /// Publish an event to all connected relays.
 /// Returns the event ID hex on success.
-Future<String> relayPublish({required String eventJson}) =>
-    RustLib.instance.api.crateApiV2RelayPublish(eventJson: eventJson);
+Future<String> relayPublish({
+  required String pubkey,
+  required String eventJson,
+}) => RustLib.instance.api.crateApiV2RelayPublish(
+  pubkey: pubkey,
+  eventJson: eventJson,
+);
 
 /// Disconnect from all relays.
-Future<void> relayDisconnect() =>
-    RustLib.instance.api.crateApiV2RelayDisconnect();
+Future<void> relayDisconnect({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2RelayDisconnect(pubkey: pubkey);
 
 /// Check if relay transport is connected.
-Future<bool> relayIsConnected() =>
-    RustLib.instance.api.crateApiV2RelayIsConnected();
+Future<bool> relayIsConnected({required String pubkey}) =>
+    RustLib.instance.api.crateApiV2RelayIsConnected(pubkey: pubkey);
 
 class V2AcceptResult {
   final String eventJson;

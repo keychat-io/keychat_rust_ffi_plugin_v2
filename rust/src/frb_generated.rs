@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1881209728;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2028770689;
 
 // Section: executor
 
@@ -67,15 +67,15 @@ fn wire__crate__api_v2__accept_friend_request_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_event_json = <String>::sse_decode(&mut deserializer);
             let api_my_display_name = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::accept_friend_request(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_event_json,
                             api_my_display_name,
                         )?;
@@ -179,15 +179,15 @@ fn wire__crate__api_v2__create_friend_request_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_peer_npub = <String>::sse_decode(&mut deserializer);
             let api_display_name = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::create_friend_request(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_peer_npub,
                             api_display_name,
                         )?;
@@ -220,16 +220,16 @@ fn wire__crate__api_v2__decrypt_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_ciphertext_base64 = <String>::sse_decode(&mut deserializer);
             let api_remote_device_id = <u32>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::decrypt(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_peer_signal_id,
                             api_ciphertext_base64,
                             api_remote_device_id,
@@ -263,14 +263,13 @@ fn wire__crate__api_v2__delete_peer_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::delete_peer(api_pubkey.clone(), api_peer_signal_id)?;
+                        let output_ok = crate::api_v2::delete_peer(api_pubkey, api_peer_signal_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -317,6 +316,41 @@ fn wire__crate__api_v2__derive_receiving_address_impl(
         },
     )
 }
+fn wire__crate__api_v2__destroy_identity_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "destroy_identity",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api_v2::destroy_identity(api_pubkey)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api_v2__encrypt_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -339,16 +373,16 @@ fn wire__crate__api_v2__encrypt_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_plaintext = <String>::sse_decode(&mut deserializer);
             let api_remote_device_id = <u32>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::encrypt(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_peer_signal_id,
                             api_plaintext,
                             api_remote_device_id,
@@ -382,14 +416,13 @@ fn wire__crate__api_v2__fetch_relay_fees_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_relay_url = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_relay_url = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::fetch_relay_fees(api_pubkey.clone(), api_relay_url)?;
+                        let output_ok = crate::api_v2::fetch_relay_fees(api_pubkey, api_relay_url)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -419,14 +452,14 @@ fn wire__crate__api_v2__get_all_receiving_addresses_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::get_all_receiving_addresses(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_peer_signal_id,
                         )?;
                         Ok(output_ok)
@@ -463,7 +496,7 @@ fn wire__crate__api_v2__get_device_id_impl(
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::get_device_id(api_pubkey.clone())?;
+                        let output_ok = crate::api_v2::get_device_id(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -493,16 +526,14 @@ fn wire__crate__api_v2__has_peer_session_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::has_peer_session(
-                            api_pubkey.clone(),
-                            api_peer_signal_id,
-                        )?;
+                        let output_ok =
+                            crate::api_v2::has_peer_session(api_pubkey, api_peer_signal_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -575,14 +606,48 @@ fn wire__crate__api_v2__is_event_processed_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_event_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_event_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok =
-                            crate::api_v2::is_event_processed(api_pubkey.clone(), api_event_id)?;
+                            crate::api_v2::is_event_processed(api_pubkey, api_event_id)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api_v2__list_identities_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "list_identities",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api_v2::list_identities()?;
                         Ok(output_ok)
                     })(),
                 )
@@ -617,7 +682,7 @@ fn wire__crate__api_v2__list_peers_impl(
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::list_peers(api_pubkey.clone())?;
+                        let output_ok = crate::api_v2::list_peers(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -647,14 +712,14 @@ fn wire__crate__api_v2__mark_event_processed_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_event_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_event_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok =
-                            crate::api_v2::mark_event_processed(api_pubkey.clone(), api_event_id)?;
+                            crate::api_v2::mark_event_processed(api_pubkey, api_event_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -684,15 +749,15 @@ fn wire__crate__api_v2__mls_add_members_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_key_packages_base64_json = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::mls_add_members(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_group_id,
                             api_key_packages_base64_json,
                         )?;
@@ -725,18 +790,15 @@ fn wire__crate__api_v2__mls_create_group_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_name = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::mls_create_group(
-                            api_pubkey.clone(),
-                            api_group_id,
-                            api_name,
-                        )?;
+                        let output_ok =
+                            crate::api_v2::mls_create_group(api_pubkey, api_group_id, api_name)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -766,15 +828,15 @@ fn wire__crate__api_v2__mls_decrypt_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_ciphertext_base64 = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::mls_decrypt(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_group_id,
                             api_ciphertext_base64,
                         )?;
@@ -807,14 +869,14 @@ fn wire__crate__api_v2__mls_derive_temp_inbox_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok =
-                            crate::api_v2::mls_derive_temp_inbox(api_pubkey.clone(), api_group_id)?;
+                            crate::api_v2::mls_derive_temp_inbox(api_pubkey, api_group_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -844,18 +906,15 @@ fn wire__crate__api_v2__mls_encrypt_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_plaintext = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::mls_encrypt(
-                            api_pubkey.clone(),
-                            api_group_id,
-                            api_plaintext,
-                        )?;
+                        let output_ok =
+                            crate::api_v2::mls_encrypt(api_pubkey, api_group_id, api_plaintext)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -890,8 +949,7 @@ fn wire__crate__api_v2__mls_generate_key_package_impl(
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::mls_generate_key_package(api_pubkey.clone())?;
+                        let output_ok = crate::api_v2::mls_generate_key_package(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -921,14 +979,13 @@ fn wire__crate__api_v2__mls_group_info_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::mls_group_info(api_pubkey.clone(), api_group_id)?;
+                        let output_ok = crate::api_v2::mls_group_info(api_pubkey, api_group_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -958,14 +1015,13 @@ fn wire__crate__api_v2__mls_group_members_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::mls_group_members(api_pubkey.clone(), api_group_id)?;
+                        let output_ok = crate::api_v2::mls_group_members(api_pubkey, api_group_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1000,7 +1056,7 @@ fn wire__crate__api_v2__mls_init_impl(
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::mls_init(api_pubkey.clone())?;
+                        let output_ok = crate::api_v2::mls_init(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1030,14 +1086,14 @@ fn wire__crate__api_v2__mls_join_group_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_welcome_base64 = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_welcome_base64 = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok =
-                            crate::api_v2::mls_join_group(api_pubkey.clone(), api_welcome_base64)?;
+                            crate::api_v2::mls_join_group(api_pubkey, api_welcome_base64)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1067,14 +1123,13 @@ fn wire__crate__api_v2__mls_leave_group_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::mls_leave_group(api_pubkey.clone(), api_group_id)?;
+                        let output_ok = crate::api_v2::mls_leave_group(api_pubkey, api_group_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1104,15 +1159,15 @@ fn wire__crate__api_v2__mls_process_commit_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_commit_base64 = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::mls_process_commit(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_group_id,
                             api_commit_base64,
                         )?;
@@ -1145,15 +1200,15 @@ fn wire__crate__api_v2__mls_remove_members_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_member_ids_json = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::mls_remove_members(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_group_id,
                             api_member_ids_json,
                         )?;
@@ -1186,14 +1241,13 @@ fn wire__crate__api_v2__mls_self_update_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::mls_self_update(api_pubkey.clone(), api_group_id)?;
+                        let output_ok = crate::api_v2::mls_self_update(api_pubkey, api_group_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1223,17 +1277,17 @@ fn wire__crate__api_v2__mls_update_group_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             let api_name = <Option<String>>::sse_decode(&mut deserializer);
             let api_status = <Option<String>>::sse_decode(&mut deserializer);
             let api_admin_pubkeys_json = <Option<String>>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::mls_update_group(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_group_id,
                             api_name,
                             api_status,
@@ -1303,16 +1357,14 @@ fn wire__crate__api_v2__receive_friend_request_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_event_json = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_event_json = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::receive_friend_request(
-                            api_pubkey.clone(),
-                            api_event_json,
-                        )?;
+                        let output_ok =
+                            crate::api_v2::receive_friend_request(api_pubkey, api_event_json)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1342,16 +1394,16 @@ fn wire__crate__api_v2__register_peer_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_peer_nostr_pubkey = <String>::sse_decode(&mut deserializer);
             let api_first_inbox = <Option<String>>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::register_peer(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_peer_signal_id,
                             api_peer_nostr_pubkey,
                             api_first_inbox,
@@ -1385,12 +1437,14 @@ fn wire__crate__api_v2__relay_connect_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_relay_urls_json = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_connect(api_relay_urls_json)?;
+                        let output_ok =
+                            crate::api_v2::relay_connect(api_pubkey, api_relay_urls_json)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1420,11 +1474,12 @@ fn wire__crate__api_v2__relay_disconnect_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_disconnect()?;
+                        let output_ok = crate::api_v2::relay_disconnect(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1454,11 +1509,12 @@ fn wire__crate__api_v2__relay_is_connected_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_is_connected()?;
+                        let output_ok = crate::api_v2::relay_is_connected(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1488,11 +1544,12 @@ fn wire__crate__api_v2__relay_next_event_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_next_event()?;
+                        let output_ok = crate::api_v2::relay_next_event(api_pubkey)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1522,12 +1579,14 @@ fn wire__crate__api_v2__relay_next_event_blocking_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_timeout_ms = <u64>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_next_event_blocking(api_timeout_ms)?;
+                        let output_ok =
+                            crate::api_v2::relay_next_event_blocking(api_pubkey, api_timeout_ms)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1557,12 +1616,13 @@ fn wire__crate__api_v2__relay_publish_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_event_json = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::relay_publish(api_event_json)?;
+                        let output_ok = crate::api_v2::relay_publish(api_pubkey, api_event_json)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1592,14 +1652,18 @@ fn wire__crate__api_v2__relay_subscribe_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_pubkeys_json = <String>::sse_decode(&mut deserializer);
             let api_since_timestamp = <u64>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::relay_subscribe(api_pubkeys_json, api_since_timestamp)?;
+                        let output_ok = crate::api_v2::relay_subscribe(
+                            api_pubkey,
+                            api_pubkeys_json,
+                            api_since_timestamp,
+                        )?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1629,16 +1693,14 @@ fn wire__crate__api_v2__resolve_send_address_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_peer_signal_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api_v2::resolve_send_address(
-                            api_pubkey.clone(),
-                            api_peer_signal_id,
-                        )?;
+                        let output_ok =
+                            crate::api_v2::resolve_send_address(api_pubkey, api_peer_signal_id)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1705,14 +1767,13 @@ fn wire__crate__api_v2__unwrap_event_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_event_json = <String>::sse_decode(&mut deserializer);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_event_json = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok =
-                            crate::api_v2::unwrap_event(api_pubkey.clone(), api_event_json)?;
+                        let output_ok = crate::api_v2::unwrap_event(api_pubkey, api_event_json)?;
                         Ok(output_ok)
                     })(),
                 )
@@ -1742,15 +1803,15 @@ fn wire__crate__api_v2__wrap_event_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_inner_content = <String>::sse_decode(&mut deserializer);
             let api_receiver_npub = <String>::sse_decode(&mut deserializer);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api_v2::wrap_event(
-                            api_pubkey.clone(),
+                            api_pubkey,
                             api_inner_content,
                             api_receiver_npub,
                         )?;
@@ -2034,48 +2095,50 @@ fn pde_ffi_dispatcher_primary_impl(
         5 => wire__crate__api_v2__decrypt_impl(port, ptr, rust_vec_len, data_len),
         6 => wire__crate__api_v2__delete_peer_impl(port, ptr, rust_vec_len, data_len),
         7 => wire__crate__api_v2__derive_receiving_address_impl(port, ptr, rust_vec_len, data_len),
-        8 => wire__crate__api_v2__encrypt_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__api_v2__fetch_relay_fees_impl(port, ptr, rust_vec_len, data_len),
-        10 => {
+        8 => wire__crate__api_v2__destroy_identity_impl(port, ptr, rust_vec_len, data_len),
+        9 => wire__crate__api_v2__encrypt_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api_v2__fetch_relay_fees_impl(port, ptr, rust_vec_len, data_len),
+        11 => {
             wire__crate__api_v2__get_all_receiving_addresses_impl(port, ptr, rust_vec_len, data_len)
         }
-        11 => wire__crate__api_v2__get_device_id_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api_v2__has_peer_session_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__api_v2__init_v2_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api_v2__is_event_processed_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api_v2__list_peers_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api_v2__mark_event_processed_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api_v2__mls_add_members_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api_v2__mls_create_group_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api_v2__mls_decrypt_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api_v2__mls_derive_temp_inbox_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api_v2__mls_encrypt_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__api_v2__mls_generate_key_package_impl(port, ptr, rust_vec_len, data_len),
-        23 => wire__crate__api_v2__mls_group_info_impl(port, ptr, rust_vec_len, data_len),
-        24 => wire__crate__api_v2__mls_group_members_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire__crate__api_v2__mls_init_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api_v2__mls_join_group_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__api_v2__mls_leave_group_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__api_v2__mls_process_commit_impl(port, ptr, rust_vec_len, data_len),
-        29 => wire__crate__api_v2__mls_remove_members_impl(port, ptr, rust_vec_len, data_len),
-        30 => wire__crate__api_v2__mls_self_update_impl(port, ptr, rust_vec_len, data_len),
-        31 => wire__crate__api_v2__mls_update_group_impl(port, ptr, rust_vec_len, data_len),
-        32 => wire__crate__api_v2__parse_message_impl(port, ptr, rust_vec_len, data_len),
-        33 => wire__crate__api_v2__receive_friend_request_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__api_v2__register_peer_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api_v2__relay_connect_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__api_v2__relay_disconnect_impl(port, ptr, rust_vec_len, data_len),
-        37 => wire__crate__api_v2__relay_is_connected_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__api_v2__relay_next_event_impl(port, ptr, rust_vec_len, data_len),
-        39 => {
+        12 => wire__crate__api_v2__get_device_id_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api_v2__has_peer_session_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api_v2__init_v2_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api_v2__is_event_processed_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api_v2__list_identities_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api_v2__list_peers_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api_v2__mark_event_processed_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api_v2__mls_add_members_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api_v2__mls_create_group_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__api_v2__mls_decrypt_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api_v2__mls_derive_temp_inbox_impl(port, ptr, rust_vec_len, data_len),
+        23 => wire__crate__api_v2__mls_encrypt_impl(port, ptr, rust_vec_len, data_len),
+        24 => wire__crate__api_v2__mls_generate_key_package_impl(port, ptr, rust_vec_len, data_len),
+        25 => wire__crate__api_v2__mls_group_info_impl(port, ptr, rust_vec_len, data_len),
+        26 => wire__crate__api_v2__mls_group_members_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api_v2__mls_init_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__api_v2__mls_join_group_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire__crate__api_v2__mls_leave_group_impl(port, ptr, rust_vec_len, data_len),
+        30 => wire__crate__api_v2__mls_process_commit_impl(port, ptr, rust_vec_len, data_len),
+        31 => wire__crate__api_v2__mls_remove_members_impl(port, ptr, rust_vec_len, data_len),
+        32 => wire__crate__api_v2__mls_self_update_impl(port, ptr, rust_vec_len, data_len),
+        33 => wire__crate__api_v2__mls_update_group_impl(port, ptr, rust_vec_len, data_len),
+        34 => wire__crate__api_v2__parse_message_impl(port, ptr, rust_vec_len, data_len),
+        35 => wire__crate__api_v2__receive_friend_request_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api_v2__register_peer_impl(port, ptr, rust_vec_len, data_len),
+        37 => wire__crate__api_v2__relay_connect_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__api_v2__relay_disconnect_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api_v2__relay_is_connected_impl(port, ptr, rust_vec_len, data_len),
+        40 => wire__crate__api_v2__relay_next_event_impl(port, ptr, rust_vec_len, data_len),
+        41 => {
             wire__crate__api_v2__relay_next_event_blocking_impl(port, ptr, rust_vec_len, data_len)
         }
-        40 => wire__crate__api_v2__relay_publish_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api_v2__relay_subscribe_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__api_v2__resolve_send_address_impl(port, ptr, rust_vec_len, data_len),
-        43 => wire__crate__api_v2__stamp_event_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api_v2__unwrap_event_impl(port, ptr, rust_vec_len, data_len),
-        45 => wire__crate__api_v2__wrap_event_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__api_v2__relay_publish_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api_v2__relay_subscribe_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__api_v2__resolve_send_address_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api_v2__stamp_event_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__api_v2__unwrap_event_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__api_v2__wrap_event_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
