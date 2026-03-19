@@ -22,7 +22,8 @@ apply plugin: 'com.android.library'
 apply from: "../cargokit/gradle/plugin.gradle"
 
 android {
-    compileSdkVersion 33
+    namespace = "io.keychat.keychat_rust_ffi_plugin_v2"
+    compileSdkVersion 34
     defaultConfig {
         minSdkVersion 21
     }
