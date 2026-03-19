@@ -52,6 +52,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   V2AcceptResult dco_decode_v_2_accept_result(dynamic raw);
 
   @protected
+  V2CompleteFriendRequestResult dco_decode_v_2_complete_friend_request_result(
+    dynamic raw,
+  );
+
+  @protected
   V2DecryptResult dco_decode_v_2_decrypt_result(dynamic raw);
 
   @protected
@@ -110,6 +115,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   V2AcceptResult sse_decode_v_2_accept_result(SseDeserializer deserializer);
+
+  @protected
+  V2CompleteFriendRequestResult sse_decode_v_2_complete_friend_request_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
   V2DecryptResult sse_decode_v_2_decrypt_result(SseDeserializer deserializer);
@@ -188,6 +198,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_v_2_accept_result(
     V2AcceptResult self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_v_2_complete_friend_request_result(
+    V2CompleteFriendRequestResult self,
     SseSerializer serializer,
   );
 

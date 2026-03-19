@@ -86,6 +86,14 @@ pub struct V2ParsedMessage {
     pub content_json: String,
 }
 
+#[derive(Debug, Clone)]
+pub struct V2CompleteFriendRequestResult {
+    pub peer_signal_identity: String,
+    pub peer_nostr_pubkey: String,
+    pub approve_message_json: String,
+    pub new_receiving_addresses: Vec<String>,
+}
+
 // ─── V2 State ───────────────────────────────────────────────────────────────
 
 struct V2State {
@@ -258,46 +266,47 @@ pub fn init_v2(
     db_key: String,
     device_id: u32,
 ) -> Result<String> {
+    println!("[V2 init] step 1: identity_from_secret_hex");
     let identity = identity_from_secret_hex(&nostr_privkey_hex)?;
+    println!("[V2 init] step 2: SecureStorage::open db_path={}", db_path);
     let storage = Arc::new(Mutex::new(
         SecureStorage::open(&db_path, &db_key)
             .map_err(|e| anyhow!("failed to open SQLCipher DB: {}", e))?,
     ));
+    println!("[V2 init] step 3: Runtime::new");
     let rt = Runtime::new().map_err(|e| anyhow!("failed to create tokio runtime: {}", e))?;
+    println!("[V2 init] step 4: restore peers");
 
-    // Restore peers from DB
+    // Restore peers from DB — collect data first, then release lock before
+    // creating SignalParticipant (which internally locks storage again).
     let mut peers = HashMap::new();
-    {
+    let peer_data: Vec<_> = {
         let db = storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
-        for peer_id in db.list_signal_participants()? {
-            if let Some((
-                dev_id,
-                id_pub,
-                id_priv,
-                reg_id,
-                spk_id,
-                spk_rec,
-                pk_id,
-                pk_rec,
-                kpk_id,
-                kpk_rec,
-            )) = db.load_signal_participant(&peer_id)?
-            {
-                let keys = reconstruct_keys(
-                    &id_pub, &id_priv, reg_id, spk_id, &spk_rec, pk_id, &pk_rec, kpk_id, &kpk_rec,
-                )?;
-                let participant = SignalParticipant::persistent(
-                    identity.pubkey_hex(),
-                    dev_id,
-                    keys,
-                    storage.clone(),
-                )
-                .map_err(|e| anyhow!("failed to restore participant {}: {}", peer_id, e))?;
-                peers.insert(peer_id, participant);
-            }
-        }
+        db.list_signal_participants()?
+            .into_iter()
+            .filter_map(|peer_id| {
+                db.load_signal_participant(&peer_id)
+                    .ok()
+                    .flatten()
+                    .map(|data| (peer_id, data))
+            })
+            .collect()
+    };
+    for (peer_id, (dev_id, id_pub, id_priv, reg_id, spk_id, spk_rec, pk_id, pk_rec, kpk_id, kpk_rec)) in peer_data {
+        let keys = reconstruct_keys(
+            &id_pub, &id_priv, reg_id, spk_id, &spk_rec, pk_id, &pk_rec, kpk_id, &kpk_rec,
+        )?;
+        let participant = SignalParticipant::persistent(
+            identity.pubkey_hex(),
+            dev_id,
+            keys,
+            storage.clone(),
+        )
+        .map_err(|e| anyhow!("failed to restore participant {}: {}", peer_id, e))?;
+        peers.insert(peer_id, participant);
     }
 
+    println!("[V2 init] step 5: restore address managers");
     // Restore address managers from DB
     let mut address_managers = HashMap::new();
     {
@@ -308,50 +317,47 @@ pub fn init_v2(
         }
     }
 
-    // Restore pending friend requests from DB
+    println!("[V2 init] step 6: restore pending FRs");
+    // Restore pending friend requests from DB — same pattern: collect first,
+    // release lock, then create SignalParticipant to avoid deadlock.
     let mut pending_frs = HashMap::new();
-    {
+    let pfr_data: Vec<_> = {
         let db = storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
-        for request_id in db.list_pending_frs()? {
-            if let Some((
-                dev_id,
-                id_pub,
-                id_priv,
-                reg_id,
-                spk_id,
-                spk_rec,
-                pk_id,
-                pk_rec,
-                kpk_id,
-                kpk_rec,
-                secret,
-            )) = db.load_pending_fr(&request_id)?
-            {
-                let keys = reconstruct_keys(
-                    &id_pub, &id_priv, reg_id, spk_id, &spk_rec, pk_id, &pk_rec, kpk_id, &kpk_rec,
-                )?;
-                let signal = SignalParticipant::persistent(
-                    identity.pubkey_hex(),
-                    dev_id,
-                    keys,
-                    storage.clone(),
-                )
-                .map_err(|e| anyhow!("failed to restore pending FR {}: {}", request_id, e))?;
-                pending_frs.insert(
-                    request_id,
-                    PendingFriendRequest {
-                        signal,
-                        first_inbox_secret: secret,
-                    },
-                );
-            }
-        }
+        db.list_pending_frs()?
+            .into_iter()
+            .filter_map(|request_id| {
+                db.load_pending_fr(&request_id)
+                    .ok()
+                    .flatten()
+                    .map(|data| (request_id, data))
+            })
+            .collect()
+    };
+    for (request_id, (dev_id, id_pub, id_priv, reg_id, spk_id, spk_rec, pk_id, pk_rec, kpk_id, kpk_rec, secret)) in pfr_data {
+        let keys = reconstruct_keys(
+            &id_pub, &id_priv, reg_id, spk_id, &spk_rec, pk_id, &pk_rec, kpk_id, &kpk_rec,
+        )?;
+        let signal = SignalParticipant::persistent(
+            identity.pubkey_hex(),
+            dev_id,
+            keys,
+            storage.clone(),
+        )
+        .map_err(|e| anyhow!("failed to restore pending FR {}: {}", request_id, e))?;
+        pending_frs.insert(
+            request_id,
+            PendingFriendRequest {
+                signal,
+                first_inbox_secret: secret,
+            },
+        );
     }
 
     let mls_db_path = db_path.replace(".db", "_mls.db");
 
     let pubkey_hex = identity.pubkey_hex();
 
+    println!("[V2 init] step 7: insert into V2 state");
     let mut guard = V2.lock().map_err(|e| anyhow!("V2 lock poisoned: {}", e))?;
     guard.insert(
         pubkey_hex.clone(),
@@ -369,6 +375,7 @@ pub fn init_v2(
             rt,
         },
     );
+    println!("[V2 init] step 8: done, pubkey={}", pubkey_hex);
     Ok(pubkey_hex)
 }
 
@@ -523,6 +530,127 @@ pub fn accept_friend_request(
         Ok(V2AcceptResult {
             event_json: event_to_json(&accepted.event),
             peer_signal_identity,
+        })
+    })
+}
+
+/// Complete a pending friend request by processing the approve event from the peer.
+///
+/// After `create_friend_request`, the requester's Signal state lives in `pending_frs`.
+/// When the peer accepts and sends back a Mode 1 approve event to firstInbox,
+/// this function decrypts it, moves the Signal participant to `peers`, and
+/// establishes the address manager — completing the PQXDH handshake on this side.
+pub fn complete_friend_request(
+    pubkey: String,
+    first_inbox_pubkey: String,
+    event_json: String,
+) -> Result<V2CompleteFriendRequestResult> {
+    with_state(&pubkey, |state| {
+        // 1. Find the pending FR by matching firstInbox pubkey
+        let (request_id, pending) = {
+            let mut found = None;
+            for (rid, pfr) in &state.pending_frs {
+                let sk = SecretKey::from_hex(&pfr.first_inbox_secret)
+                    .map_err(|e| anyhow!("bad first_inbox_secret: {}", e))?;
+                let pk = Keys::new(sk).public_key().to_hex();
+                if pk == first_inbox_pubkey {
+                    found = Some(rid.clone());
+                    break;
+                }
+            }
+            let rid = found.ok_or_else(|| {
+                anyhow!(
+                    "no pending friend request for firstInbox {}",
+                    first_inbox_pubkey
+                )
+            })?;
+            let pfr = state.pending_frs.remove(&rid).unwrap();
+            (rid, pfr)
+        };
+
+        // 2. Parse the approve event and decrypt Signal ciphertext
+        let event = event_from_json(&event_json)?;
+        let ciphertext = base64::Engine::decode(
+            &base64::engine::general_purpose::STANDARD,
+            &event.content.to_string(),
+        )
+        .map_err(|e| anyhow!("invalid base64 in approve event: {}", e))?;
+
+        // The acceptor encrypted with remote_address = ProtocolAddress(our_signal_id, our_device_id).
+        let my_signal_id = pending.signal.identity_public_key_hex();
+        let mut signal = pending.signal;
+        let remote_addr = ProtocolAddress::new(
+            my_signal_id.clone(),
+            DeviceId::new(state.device_id as u8).unwrap(),
+        );
+
+        let decrypt_result = signal.decrypt(&remote_addr, &ciphertext)?;
+
+        let plaintext = String::from_utf8(decrypt_result.plaintext)
+            .map_err(|e| anyhow!("approve message is not valid UTF-8: {}", e))?;
+
+        // 3. Parse KCMessage to extract peer's signal identity
+        let msg: serde_json::Value = serde_json::from_str(&plaintext)
+            .map_err(|e| anyhow!("approve message is not valid JSON: {}", e))?;
+
+        let peer_signal_id = msg
+            .get("signalPrekeyAuth")
+            .and_then(|spa| spa.get("signalId"))
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| anyhow!("approve message missing signalPrekeyAuth.signalId"))?
+            .to_string();
+
+        let peer_nostr_pubkey = msg
+            .get("signalPrekeyAuth")
+            .and_then(|spa| spa.get("nostrId"))
+            .and_then(|v| v.as_str())
+            .ok_or_else(|| anyhow!("approve message missing signalPrekeyAuth.nostrId"))?
+            .to_string();
+
+        // 4. Register peer in state.peers and set up address manager
+        let mut addr_mgr = AddressManager::new();
+        addr_mgr.add_peer(
+            &peer_signal_id,
+            None, // no first_inbox for this peer (we are the requester)
+            Some(peer_nostr_pubkey.clone()),
+        );
+
+        // Collect new receiving addresses from the address manager
+        let new_receiving = if let Some(bob_addr) = decrypt_result.bob_derived_address.as_deref() {
+            let update = addr_mgr.on_decrypt(
+                &peer_signal_id,
+                Some(bob_addr),
+                decrypt_result.alice_addrs.as_deref(),
+            )?;
+            update.new_receiving
+        } else {
+            Vec::new()
+        };
+
+        persist_address_state(&state.storage, &peer_signal_id, &addr_mgr)?;
+
+        // Save peer mapping to DB
+        {
+            let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
+            let peer_name = msg
+                .get("signalPrekeyAuth")
+                .and_then(|spa| spa.get("name"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
+            db.save_peer_mapping(&peer_nostr_pubkey, &peer_signal_id, peer_name)?;
+
+            // Remove pending FR from DB
+            db.delete_pending_fr(&request_id)?;
+        }
+
+        state.peers.insert(peer_signal_id.clone(), signal);
+        state.address_managers.insert(peer_signal_id.clone(), addr_mgr);
+
+        Ok(V2CompleteFriendRequestResult {
+            peer_signal_identity: peer_signal_id,
+            peer_nostr_pubkey,
+            approve_message_json: plaintext,
+            new_receiving_addresses: new_receiving,
         })
     })
 }
@@ -684,11 +812,10 @@ pub fn derive_receiving_address(private_key_hex: String, public_key_hex: String)
 
 pub fn get_all_receiving_addresses(pubkey: String, peer_signal_id: String) -> Result<Vec<String>> {
     with_state(&pubkey, |state| {
-        let addr_mgr = state
-            .address_managers
-            .get(&peer_signal_id)
-            .ok_or_else(|| anyhow!("no address manager for peer: {}", peer_signal_id))?;
-        Ok(addr_mgr.get_all_receiving_address_strings())
+        match state.address_managers.get(&peer_signal_id) {
+            Some(addr_mgr) => Ok(addr_mgr.get_all_receiving_address_strings()),
+            None => Ok(Vec::new()),
+        }
     })
 }
 

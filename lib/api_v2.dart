@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `get_mls`, `identity_from_secret_hex`, `persist_address_state`, `reconstruct_keys`, `save_keys_to_db`, `save_pending_keys_to_db`, `with_state`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PendingFriendRequest`, `V2State`, `V2`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
 
 Future<String> initV2({
   required String nostrPrivkeyHex,
@@ -56,6 +56,22 @@ Future<V2AcceptResult> acceptFriendRequest({
   pubkey: pubkey,
   eventJson: eventJson,
   myDisplayName: myDisplayName,
+);
+
+/// Complete a pending friend request by processing the approve event from the peer.
+///
+/// After `create_friend_request`, the requester's Signal state lives in `pending_frs`.
+/// When the peer accepts and sends back a Mode 1 approve event to firstInbox,
+/// this function decrypts it, moves the Signal participant to `peers`, and
+/// establishes the address manager — completing the PQXDH handshake on this side.
+Future<V2CompleteFriendRequestResult> completeFriendRequest({
+  required String pubkey,
+  required String firstInboxPubkey,
+  required String eventJson,
+}) => RustLib.instance.api.crateApiV2CompleteFriendRequest(
+  pubkey: pubkey,
+  firstInboxPubkey: firstInboxPubkey,
+  eventJson: eventJson,
 );
 
 Future<V2EncryptResult> encrypt({
@@ -426,6 +442,37 @@ class V2AcceptResult {
           runtimeType == other.runtimeType &&
           eventJson == other.eventJson &&
           peerSignalIdentity == other.peerSignalIdentity;
+}
+
+class V2CompleteFriendRequestResult {
+  final String peerSignalIdentity;
+  final String peerNostrPubkey;
+  final String approveMessageJson;
+  final List<String> newReceivingAddresses;
+
+  const V2CompleteFriendRequestResult({
+    required this.peerSignalIdentity,
+    required this.peerNostrPubkey,
+    required this.approveMessageJson,
+    required this.newReceivingAddresses,
+  });
+
+  @override
+  int get hashCode =>
+      peerSignalIdentity.hashCode ^
+      peerNostrPubkey.hashCode ^
+      approveMessageJson.hashCode ^
+      newReceivingAddresses.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is V2CompleteFriendRequestResult &&
+          runtimeType == other.runtimeType &&
+          peerSignalIdentity == other.peerSignalIdentity &&
+          peerNostrPubkey == other.peerNostrPubkey &&
+          approveMessageJson == other.approveMessageJson &&
+          newReceivingAddresses == other.newReceivingAddresses;
 }
 
 class V2DecryptResult {
