@@ -4,6 +4,17 @@
 use base64::Engine as _;
 use keychat_rust_ffi_plugin_v2::api_v2::*;
 
+const TEST_KEY: &str = "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
+
+fn test_init() -> String {
+    init_v2(TEST_KEY.into(), ":memory:".into(), "test-key".into(), 1).unwrap_or_else(|_| {
+        // Already initialized in another test, get pubkey from privkey
+        use libkeychat::{Keys, SecretKey};
+        let sk = SecretKey::from_hex(TEST_KEY).unwrap();
+        Keys::new(sk).public_key().to_hex()
+    })
+}
+
 // ─── KCMessage V2 Format ────────────────────────────────────────────────────
 
 #[test]
@@ -104,12 +115,12 @@ fn test_init_v2_and_create_friend_request() {
 
     let init_result = init_v2(privkey.into(), ":memory:".into(), "test-key".into(), 1);
     match init_result {
-        Ok(()) => {
-            eprintln!("✅ init_v2 succeeded");
+        Ok(ref pubkey) => {
+            eprintln!("✅ init_v2 succeeded, pubkey={}", &pubkey[..16]);
 
             // Create friend request
             let bob = "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef";
-            match create_friend_request(bob.into(), "TestAlice".into()) {
+            match create_friend_request(pubkey.clone(), bob.into(), "TestAlice".into()) {
                 Ok(fr) => {
                     // Verify V2FriendRequestResult fields
                     assert!(!fr.event_json.is_empty(), "event_json must not be empty");
@@ -167,14 +178,21 @@ fn test_init_v2_and_create_friend_request() {
 
 #[test]
 fn test_encrypt_result_structure() {
+    let pubkey = test_init();
     // Without a Signal session, encrypt will fail — but we verify the error path
-    let result = encrypt("nonexistent_peer".into(), "test".into(), 1);
+    let result = encrypt(pubkey.clone(), "nonexistent_peer".into(), "test".into(), 1);
     assert!(result.is_err(), "Encrypt without session should fail");
 }
 
 #[test]
 fn test_decrypt_result_structure() {
-    let result = decrypt("nonexistent_peer".into(), "dGVzdA==".into(), 1);
+    let pubkey = test_init();
+    let result = decrypt(
+        pubkey.clone(),
+        "nonexistent_peer".into(),
+        "dGVzdA==".into(),
+        1,
+    );
     assert!(result.is_err(), "Decrypt without session should fail");
 }
 
@@ -182,7 +200,8 @@ fn test_decrypt_result_structure() {
 
 #[test]
 fn test_unwrap_invalid_event() {
-    let result = unwrap_event(r#"{"invalid":"event"}"#.into());
+    let pubkey = test_init();
+    let result = unwrap_event(pubkey.clone(), r#"{"invalid":"event"}"#.into());
     assert!(result.is_err(), "Unwrap invalid event should fail");
 }
 
@@ -190,7 +209,8 @@ fn test_unwrap_invalid_event() {
 
 #[test]
 fn test_fetch_relay_fees_structure() {
-    let result = fetch_relay_fees("wss://relay.keychat.io".into());
+    let pubkey = test_init();
+    let result = fetch_relay_fees(pubkey.clone(), "wss://relay.keychat.io".into());
     match result {
         Ok(json) => {
             // Must be valid JSON
@@ -207,7 +227,8 @@ fn test_fetch_relay_fees_structure() {
 
 #[test]
 fn test_resolve_send_address_no_peer() {
-    let result = resolve_send_address("nonexistent".into());
+    let pubkey = test_init();
+    let result = resolve_send_address(pubkey.clone(), "nonexistent".into());
     assert!(
         result.is_err(),
         "Resolve address for unknown peer should fail"
@@ -218,14 +239,8 @@ fn test_resolve_send_address_no_peer() {
 
 #[test]
 fn test_mls_init() {
-    // Need init_v2 first
-    let _ = init_v2(
-        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
-        ":memory:".into(),
-        "test-key".into(),
-        1,
-    );
-    let result = mls_init();
+    let pubkey = test_init();
+    let result = mls_init(pubkey.clone());
     match result {
         Ok(()) => eprintln!("✅ MLS init succeeded"),
         Err(e) => eprintln!("MLS init error: {e}"),
@@ -234,15 +249,10 @@ fn test_mls_init() {
 
 #[test]
 fn test_mls_generate_key_package_structure() {
-    let _ = init_v2(
-        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
-        ":memory:".into(),
-        "test-key".into(),
-        1,
-    );
-    let _ = mls_init();
+    let pubkey = test_init();
+    let _ = mls_init(pubkey.clone());
 
-    match mls_generate_key_package() {
+    match mls_generate_key_package(pubkey.clone()) {
         Ok(kp_base64) => {
             assert!(!kp_base64.is_empty(), "KeyPackage must not be empty");
             // Must be valid base64
@@ -260,21 +270,16 @@ fn test_mls_generate_key_package_structure() {
 
 #[test]
 fn test_mls_create_group_and_encrypt() {
-    let _ = init_v2(
-        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
-        ":memory:".into(),
-        "test-key".into(),
-        1,
-    );
-    let _ = mls_init();
+    let pubkey = test_init();
+    let _ = mls_init(pubkey.clone());
 
     let group_id = "test-group-001";
-    match mls_create_group(group_id.into(), "Test Group".into()) {
+    match mls_create_group(pubkey.clone(), group_id.into(), "Test Group".into()) {
         Ok(()) => {
             eprintln!("✅ Group created");
 
             // Encrypt
-            match mls_encrypt(group_id.into(), "hello group".into()) {
+            match mls_encrypt(pubkey.clone(), group_id.into(), "hello group".into()) {
                 Ok(ct_base64) => {
                     assert!(!ct_base64.is_empty());
                     let decoded = base64::engine::general_purpose::STANDARD.decode(&ct_base64);
@@ -285,7 +290,7 @@ fn test_mls_create_group_and_encrypt() {
             }
 
             // Members
-            match mls_group_members(group_id.into()) {
+            match mls_group_members(pubkey.clone(), group_id.into()) {
                 Ok(members) => {
                     assert!(
                         !members.is_empty(),
@@ -297,7 +302,7 @@ fn test_mls_create_group_and_encrypt() {
             }
 
             // Group info
-            match mls_group_info(group_id.into()) {
+            match mls_group_info(pubkey.clone(), group_id.into()) {
                 Ok(info) => {
                     assert_eq!(info.name, "Test Group");
                     assert!(!info.admins_json.is_empty());
@@ -307,7 +312,7 @@ fn test_mls_create_group_and_encrypt() {
             }
 
             // Derive temp inbox
-            match mls_derive_temp_inbox(group_id.into()) {
+            match mls_derive_temp_inbox(pubkey.clone(), group_id.into()) {
                 Ok(addr) => {
                     assert!(!addr.is_empty());
                     eprintln!("✅ Temp inbox: {}", &addr[..32.min(addr.len())]);
@@ -321,23 +326,22 @@ fn test_mls_create_group_and_encrypt() {
 
 #[test]
 fn test_mls_decrypt_result_structure() {
-    // Decrypt without valid group should fail
-    let result = mls_decrypt("nonexistent-group".into(), "dGVzdA==".into());
+    let pubkey = test_init();
+    let result = mls_decrypt(
+        pubkey.clone(),
+        "nonexistent-group".into(),
+        "dGVzdA==".into(),
+    );
     assert!(result.is_err(), "Decrypt on nonexistent group should fail");
 }
 
 #[test]
 fn test_mls_add_members_result_structure() {
-    let _ = init_v2(
-        "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789".into(),
-        ":memory:".into(),
-        "test-key".into(),
-        1,
-    );
-    let _ = mls_init();
+    let pubkey = test_init();
+    let _ = mls_init(pubkey.clone());
 
     // Empty key packages should fail
-    let result = mls_add_members("nonexistent".into(), "[]".into());
+    let result = mls_add_members(pubkey.clone(), "nonexistent".into(), "[]".into());
     assert!(
         result.is_err(),
         "Add members to nonexistent group should fail"

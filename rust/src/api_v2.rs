@@ -114,17 +114,17 @@ struct PendingFriendRequest {
 }
 
 lazy_static! {
-    static ref V2: Mutex<Option<V2State>> = Mutex::new(None);
+    static ref V2: Mutex<HashMap<String, V2State>> = Mutex::new(HashMap::new());
 }
 
-fn with_state<F, T>(f: F) -> Result<T>
+fn with_state<F, T>(pubkey: &str, f: F) -> Result<T>
 where
     F: FnOnce(&mut V2State) -> Result<T>,
 {
     let mut guard = V2.lock().map_err(|e| anyhow!("V2 lock poisoned: {}", e))?;
     let state = guard
-        .as_mut()
-        .ok_or_else(|| anyhow!("V2 not initialized. Call init_v2() first."))?;
+        .get_mut(pubkey)
+        .ok_or_else(|| anyhow!("identity {} not initialized. Call init_v2() first.", pubkey))?;
     f(state)
 }
 
@@ -257,7 +257,7 @@ pub fn init_v2(
     db_path: String,
     db_key: String,
     device_id: u32,
-) -> Result<()> {
+) -> Result<String> {
     let identity = identity_from_secret_hex(&nostr_privkey_hex)?;
     let storage = Arc::new(Mutex::new(
         SecureStorage::open(&db_path, &db_key)
@@ -350,30 +350,49 @@ pub fn init_v2(
 
     let mls_db_path = db_path.replace(".db", "_mls.db");
 
+    let pubkey_hex = identity.pubkey_hex();
+
     let mut guard = V2.lock().map_err(|e| anyhow!("V2 lock poisoned: {}", e))?;
-    *guard = Some(V2State {
-        identity,
-        device_id,
-        storage,
-        peers,
-        address_managers,
-        pending_frs,
-        mls: None,
-        mls_db_path,
-        transport: None,
-        event_rx: None,
-        rt,
-    });
+    guard.insert(
+        pubkey_hex.clone(),
+        V2State {
+            identity,
+            device_id,
+            storage,
+            peers,
+            address_managers,
+            pending_frs,
+            mls: None,
+            mls_db_path,
+            transport: None,
+            event_rx: None,
+            rt,
+        },
+    );
+    Ok(pubkey_hex)
+}
+
+/// Destroy an identity and release its resources.
+pub fn destroy_identity(pubkey: String) -> Result<()> {
+    let mut guard = V2.lock().map_err(|e| anyhow!("V2 lock poisoned: {}", e))?;
+    guard.remove(&pubkey);
     Ok(())
+}
+
+/// List all initialized identity pubkeys.
+pub fn list_identities() -> Result<Vec<String>> {
+    let guard = V2.lock().map_err(|e| anyhow!("V2 lock poisoned: {}", e))?;
+    Ok(guard.keys().cloned().collect())
 }
 
 // ─── Friend Request (PQXDH) ────────────────────────────────────────────────
 
 pub fn create_friend_request(
+    pubkey: String,
     peer_npub: String,
     display_name: String,
 ) -> Result<V2FriendRequestResult> {
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let peer_hex = libkeychat::normalize_pubkey(&peer_npub)
             .map_err(|e| anyhow!("invalid peer npub: {}", e))?;
 
@@ -425,8 +444,11 @@ pub fn create_friend_request(
     })
 }
 
-pub fn receive_friend_request(event_json: String) -> Result<V2IncomingFriendRequest> {
-    with_state(|state| {
+pub fn receive_friend_request(
+    pubkey: String,
+    event_json: String,
+) -> Result<V2IncomingFriendRequest> {
+    with_state(&pubkey, |state| {
         let event = event_from_json(&event_json)?;
         let fr = lk_receive_friend_request(&state.identity, &event)?;
 
@@ -454,10 +476,11 @@ pub fn receive_friend_request(event_json: String) -> Result<V2IncomingFriendRequ
 }
 
 pub fn accept_friend_request(
+    pubkey: String,
     event_json: String,
     my_display_name: String,
 ) -> Result<V2AcceptResult> {
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let event = event_from_json(&event_json)?;
         let fr = lk_receive_friend_request(&state.identity, &event)?;
 
@@ -507,11 +530,12 @@ pub fn accept_friend_request(
 // ─── Encrypt/Decrypt ────────────────────────────────────────────────────────
 
 pub fn encrypt(
+    pubkey: String,
     peer_signal_id: String,
     plaintext: String,
     remote_device_id: u32,
 ) -> Result<V2EncryptResult> {
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let signal = state
             .peers
             .get_mut(&peer_signal_id)
@@ -549,11 +573,12 @@ pub fn encrypt(
 }
 
 pub fn decrypt(
+    pubkey: String,
     peer_signal_id: String,
     ciphertext_base64: String,
     remote_device_id: u32,
 ) -> Result<V2DecryptResult> {
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let signal = state
             .peers
             .get_mut(&peer_signal_id)
@@ -602,8 +627,8 @@ pub fn decrypt(
 
 // ─── Gift Wrap (kind:1059) ──────────────────────────────────────────────────
 
-pub fn wrap_event(inner_content: String, receiver_npub: String) -> Result<String> {
-    with_state(|state| {
+pub fn wrap_event(pubkey: String, inner_content: String, receiver_npub: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         let receiver_hex = libkeychat::normalize_pubkey(&receiver_npub)
             .map_err(|e| anyhow!("invalid receiver npub: {}", e))?;
         let receiver_pubkey = PublicKey::from_hex(&receiver_hex)
@@ -619,8 +644,8 @@ pub fn wrap_event(inner_content: String, receiver_npub: String) -> Result<String
     })
 }
 
-pub fn unwrap_event(event_json: String) -> Result<V2UnwrappedEvent> {
-    with_state(|state| {
+pub fn unwrap_event(pubkey: String, event_json: String) -> Result<V2UnwrappedEvent> {
+    with_state(&pubkey, |state| {
         let event = event_from_json(&event_json)?;
 
         let unwrapped = unwrap_gift_wrap(state.identity.keys(), &event)?;
@@ -635,8 +660,8 @@ pub fn unwrap_event(event_json: String) -> Result<V2UnwrappedEvent> {
 
 // ─── Stamp ──────────────────────────────────────────────────────────────────
 
-pub fn fetch_relay_fees(relay_url: String) -> Result<String> {
-    with_state(|state| {
+pub fn fetch_relay_fees(pubkey: String, relay_url: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         let info = state.rt.block_on(fetch_relay_info(&relay_url))?;
         let json = serde_json::to_string(&info)?;
         Ok(json)
@@ -657,8 +682,8 @@ pub fn derive_receiving_address(private_key_hex: String, public_key_hex: String)
     Ok(address)
 }
 
-pub fn get_all_receiving_addresses(peer_signal_id: String) -> Result<Vec<String>> {
-    with_state(|state| {
+pub fn get_all_receiving_addresses(pubkey: String, peer_signal_id: String) -> Result<Vec<String>> {
+    with_state(&pubkey, |state| {
         let addr_mgr = state
             .address_managers
             .get(&peer_signal_id)
@@ -712,11 +737,12 @@ pub fn parse_message(json: String) -> Result<V2ParsedMessage> {
 // ─── Peer management helpers ────────────────────────────────────────────────
 
 pub fn register_peer(
+    pubkey: String,
     peer_signal_id: String,
     peer_nostr_pubkey: String,
     first_inbox: Option<String>,
 ) -> Result<()> {
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         if !state.address_managers.contains_key(&peer_signal_id) {
             let mut addr_mgr = AddressManager::new();
             addr_mgr.add_peer(&peer_signal_id, first_inbox, Some(peer_nostr_pubkey));
@@ -727,8 +753,8 @@ pub fn register_peer(
     })
 }
 
-pub fn resolve_send_address(peer_signal_id: String) -> Result<String> {
-    with_state(|state| {
+pub fn resolve_send_address(pubkey: String, peer_signal_id: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         let addr_mgr = state
             .address_managers
             .get(&peer_signal_id)
@@ -741,8 +767,8 @@ pub fn resolve_send_address(peer_signal_id: String) -> Result<String> {
 // ─── Persistence-specific APIs ──────────────────────────────────────────────
 
 /// List all known peers from DB.
-pub fn list_peers() -> Result<Vec<String>> {
-    with_state(|state| {
+pub fn list_peers(pubkey: String) -> Result<Vec<String>> {
+    with_state(&pubkey, |state| {
         let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
         let peers = db.list_peers()?;
         Ok(peers
@@ -761,13 +787,15 @@ pub fn list_peers() -> Result<Vec<String>> {
 }
 
 /// Check if we have a session with a peer.
-pub fn has_peer_session(peer_signal_id: String) -> Result<bool> {
-    with_state(|state| Ok(state.peers.contains_key(&peer_signal_id)))
+pub fn has_peer_session(pubkey: String, peer_signal_id: String) -> Result<bool> {
+    with_state(&pubkey, |state| {
+        Ok(state.peers.contains_key(&peer_signal_id))
+    })
 }
 
 /// Delete a peer and all associated state.
-pub fn delete_peer(peer_signal_id: String) -> Result<()> {
-    with_state(|state| {
+pub fn delete_peer(pubkey: String, peer_signal_id: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         state.peers.remove(&peer_signal_id);
         state.address_managers.remove(&peer_signal_id);
 
@@ -779,16 +807,16 @@ pub fn delete_peer(peer_signal_id: String) -> Result<()> {
 }
 
 /// Check if an event was already processed (deduplication).
-pub fn is_event_processed(event_id: String) -> Result<bool> {
-    with_state(|state| {
+pub fn is_event_processed(pubkey: String, event_id: String) -> Result<bool> {
+    with_state(&pubkey, |state| {
         let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
         Ok(db.is_event_processed(&event_id)?)
     })
 }
 
 /// Mark an event as processed.
-pub fn mark_event_processed(event_id: String) -> Result<()> {
-    with_state(|state| {
+pub fn mark_event_processed(pubkey: String, event_id: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
         db.mark_event_processed(&event_id)?;
         Ok(())
@@ -796,8 +824,8 @@ pub fn mark_event_processed(event_id: String) -> Result<()> {
 }
 
 /// Get the current device ID.
-pub fn get_device_id() -> Result<u32> {
-    with_state(|state| Ok(state.device_id))
+pub fn get_device_id(pubkey: String) -> Result<u32> {
+    with_state(&pubkey, |state| Ok(state.device_id))
 }
 
 // ─── MLS Group Operations ───────────────────────────────────────────────────
@@ -833,17 +861,17 @@ fn get_mls(state: &mut V2State) -> Result<&MlsParticipant> {
 }
 
 /// Initialize MLS subsystem.
-pub fn mls_init() -> Result<()> {
-    with_state(|state| {
+pub fn mls_init(pubkey: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         get_mls(state)?;
         Ok(())
     })
 }
 
 /// Generate a KeyPackage (base64-encoded).
-pub fn mls_generate_key_package() -> Result<String> {
+pub fn mls_generate_key_package(pubkey: String) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let kp = mls.generate_key_package()?;
         let kp_bytes = serde_json::to_vec(&kp)?;
@@ -852,8 +880,8 @@ pub fn mls_generate_key_package() -> Result<String> {
 }
 
 /// Create a new MLS group.
-pub fn mls_create_group(group_id: String, name: String) -> Result<()> {
-    with_state(|state| {
+pub fn mls_create_group(pubkey: String, group_id: String, name: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         mls.create_group(&group_id, &name)?;
         Ok(())
@@ -862,11 +890,12 @@ pub fn mls_create_group(group_id: String, name: String) -> Result<()> {
 
 /// Add members. key_packages_base64_json: JSON array of base64 KeyPackage bytes.
 pub fn mls_add_members(
+    pubkey: String,
     group_id: String,
     key_packages_base64_json: String,
 ) -> Result<V2MlsAddMembersResult> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let kp_b64_list: Vec<String> = serde_json::from_str(&key_packages_base64_json)?;
         let key_packages: Vec<_> = kp_b64_list
@@ -887,9 +916,9 @@ pub fn mls_add_members(
 }
 
 /// Join a group via Welcome (base64). Returns group_id.
-pub fn mls_join_group(welcome_base64: String) -> Result<String> {
+pub fn mls_join_group(pubkey: String, welcome_base64: String) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let bytes = base64::engine::general_purpose::STANDARD.decode(&welcome_base64)?;
         Ok(mls.join_group(&bytes)?)
@@ -897,9 +926,9 @@ pub fn mls_join_group(welcome_base64: String) -> Result<String> {
 }
 
 /// Encrypt plaintext for MLS group. Returns ciphertext base64.
-pub fn mls_encrypt(group_id: String, plaintext: String) -> Result<String> {
+pub fn mls_encrypt(pubkey: String, group_id: String, plaintext: String) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let ct = mls.encrypt(&group_id, plaintext.as_bytes())?;
         Ok(base64::engine::general_purpose::STANDARD.encode(&ct))
@@ -907,9 +936,13 @@ pub fn mls_encrypt(group_id: String, plaintext: String) -> Result<String> {
 }
 
 /// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
-pub fn mls_decrypt(group_id: String, ciphertext_base64: String) -> Result<V2MlsDecryptResult> {
+pub fn mls_decrypt(
+    pubkey: String,
+    group_id: String,
+    ciphertext_base64: String,
+) -> Result<V2MlsDecryptResult> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let ct = base64::engine::general_purpose::STANDARD.decode(&ciphertext_base64)?;
         let (pt_bytes, sender_id) = mls.decrypt(&group_id, &ct)?;
@@ -921,9 +954,13 @@ pub fn mls_decrypt(group_id: String, ciphertext_base64: String) -> Result<V2MlsD
 }
 
 /// Remove members by nostr ID (JSON array). Returns commit base64.
-pub fn mls_remove_members(group_id: String, member_ids_json: String) -> Result<String> {
+pub fn mls_remove_members(
+    pubkey: String,
+    group_id: String,
+    member_ids_json: String,
+) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let member_ids: Vec<String> = serde_json::from_str(&member_ids_json)?;
         let indices: Vec<_> = member_ids
@@ -939,9 +976,9 @@ pub fn mls_remove_members(group_id: String, member_ids_json: String) -> Result<S
 }
 
 /// Self-update (key rotation). Returns commit base64.
-pub fn mls_self_update(group_id: String) -> Result<String> {
+pub fn mls_self_update(pubkey: String, group_id: String) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let commit = mls.self_update(&group_id)?;
         Ok(base64::engine::general_purpose::STANDARD.encode(&commit))
@@ -949,9 +986,9 @@ pub fn mls_self_update(group_id: String) -> Result<String> {
 }
 
 /// Leave a group. Returns proposal base64.
-pub fn mls_leave_group(group_id: String) -> Result<String> {
+pub fn mls_leave_group(pubkey: String, group_id: String) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let proposal = mls.leave_group(&group_id)?;
         Ok(base64::engine::general_purpose::STANDARD.encode(&proposal))
@@ -959,9 +996,9 @@ pub fn mls_leave_group(group_id: String) -> Result<String> {
 }
 
 /// Process incoming MLS Commit (base64).
-pub fn mls_process_commit(group_id: String, commit_base64: String) -> Result<()> {
+pub fn mls_process_commit(pubkey: String, group_id: String, commit_base64: String) -> Result<()> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let bytes = base64::engine::general_purpose::STANDARD.decode(&commit_base64)?;
         mls.process_commit(&group_id, &bytes)?;
@@ -970,16 +1007,16 @@ pub fn mls_process_commit(group_id: String, commit_base64: String) -> Result<()>
 }
 
 /// Derive shared MLS temp inbox address.
-pub fn mls_derive_temp_inbox(group_id: String) -> Result<String> {
-    with_state(|state| {
+pub fn mls_derive_temp_inbox(pubkey: String, group_id: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         Ok(mls.derive_temp_inbox(&group_id)?)
     })
 }
 
 /// List group members (nostr IDs).
-pub fn mls_group_members(group_id: String) -> Result<Vec<String>> {
-    with_state(|state| {
+pub fn mls_group_members(pubkey: String, group_id: String) -> Result<Vec<String>> {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         Ok(mls.group_members(&group_id)?)
     })
@@ -987,13 +1024,14 @@ pub fn mls_group_members(group_id: String) -> Result<Vec<String>> {
 
 /// Update group context. Returns commit base64.
 pub fn mls_update_group(
+    pubkey: String,
     group_id: String,
     name: Option<String>,
     status: Option<String>,
     admin_pubkeys_json: Option<String>,
 ) -> Result<String> {
     use base64::Engine;
-    with_state(|state| {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let admin_pubkeys: Option<Vec<String>> = admin_pubkeys_json
             .as_ref()
@@ -1011,8 +1049,8 @@ pub fn mls_update_group(
 }
 
 /// Get group info.
-pub fn mls_group_info(group_id: String) -> Result<V2MlsGroupInfo> {
-    with_state(|state| {
+pub fn mls_group_info(pubkey: String, group_id: String) -> Result<V2MlsGroupInfo> {
+    with_state(&pubkey, |state| {
         let mls = get_mls(state)?;
         let ext = mls.group_extension(&group_id)?;
         Ok(V2MlsGroupInfo {
@@ -1032,8 +1070,8 @@ pub fn mls_group_info(group_id: String) -> Result<V2MlsGroupInfo> {
 
 /// Connect to Nostr relays.
 /// `relay_urls_json`: JSON array of relay URLs, e.g. `["wss://relay.damus.io","wss://relay.keychat.io"]`
-pub fn relay_connect(relay_urls_json: String) -> Result<()> {
-    with_state(|state| {
+pub fn relay_connect(pubkey: String, relay_urls_json: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         let urls: Vec<String> = serde_json::from_str(&relay_urls_json)
             .map_err(|e| anyhow!("invalid relay URLs JSON: {}", e))?;
 
@@ -1059,8 +1097,8 @@ pub fn relay_connect(relay_urls_json: String) -> Result<()> {
 /// `pubkeys_json`: JSON array of hex pubkeys to listen on.
 /// `since_timestamp`: Unix timestamp (0 = no filter).
 /// Starts a background listener that buffers incoming events.
-pub fn relay_subscribe(pubkeys_json: String, since_timestamp: u64) -> Result<()> {
-    with_state(|state| {
+pub fn relay_subscribe(pubkey: String, pubkeys_json: String, since_timestamp: u64) -> Result<()> {
+    with_state(&pubkey, |state| {
         let transport = state
             .transport
             .as_ref()
@@ -1115,8 +1153,8 @@ pub fn relay_subscribe(pubkeys_json: String, since_timestamp: u64) -> Result<()>
 
 /// Fetch the next buffered relay event (non-blocking).
 /// Returns event JSON or empty string if no event available.
-pub fn relay_next_event() -> Result<String> {
-    with_state(|state| {
+pub fn relay_next_event(pubkey: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         if let Some(rx) = &state.event_rx {
             match rx.try_recv() {
                 Ok(event_json) => Ok(event_json),
@@ -1133,8 +1171,8 @@ pub fn relay_next_event() -> Result<String> {
 
 /// Fetch the next relay event, blocking up to `timeout_ms` milliseconds.
 /// Returns event JSON or empty string on timeout.
-pub fn relay_next_event_blocking(timeout_ms: u64) -> Result<String> {
-    with_state(|state| {
+pub fn relay_next_event_blocking(pubkey: String, timeout_ms: u64) -> Result<String> {
+    with_state(&pubkey, |state| {
         if let Some(rx) = &state.event_rx {
             match rx.recv_timeout(std::time::Duration::from_millis(timeout_ms)) {
                 Ok(event_json) => Ok(event_json),
@@ -1151,8 +1189,8 @@ pub fn relay_next_event_blocking(timeout_ms: u64) -> Result<String> {
 
 /// Publish an event to all connected relays.
 /// Returns the event ID hex on success.
-pub fn relay_publish(event_json: String) -> Result<String> {
-    with_state(|state| {
+pub fn relay_publish(pubkey: String, event_json: String) -> Result<String> {
+    with_state(&pubkey, |state| {
         let transport = state
             .transport
             .as_ref()
@@ -1172,8 +1210,8 @@ pub fn relay_publish(event_json: String) -> Result<String> {
 }
 
 /// Disconnect from all relays.
-pub fn relay_disconnect() -> Result<()> {
-    with_state(|state| {
+pub fn relay_disconnect(pubkey: String) -> Result<()> {
+    with_state(&pubkey, |state| {
         if let Some(transport) = state.transport.take() {
             state.event_rx = None;
             state.rt.block_on(async {
@@ -1188,6 +1226,6 @@ pub fn relay_disconnect() -> Result<()> {
 }
 
 /// Check if relay transport is connected.
-pub fn relay_is_connected() -> Result<bool> {
-    with_state(|state| Ok(state.transport.is_some()))
+pub fn relay_is_connected(pubkey: String) -> Result<bool> {
+    with_state(&pubkey, |state| Ok(state.transport.is_some()))
 }
