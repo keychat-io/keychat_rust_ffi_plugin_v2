@@ -1,6 +1,14 @@
 //! Multi-identity tests: verify multiple identities coexist and persist independently.
+//! Includes Signal session persistence across restart for multiple identities.
+
+use std::sync::{Arc, Mutex};
 
 use keychat_rust_ffi_plugin_v2::api_v2::*;
+use libkeychat::{
+    generate_prekey_material, DeviceId, GenericSignedPreKey, IdentityKey, IdentityKeyPair,
+    KyberPreKeyId, KyberPreKeyRecord, PreKeyId, PreKeyRecord, ProtocolAddress, SecureStorage,
+    SignalParticipant, SignalPreKeyMaterial, SignalPrivateKey, SignedPreKeyId, SignedPreKeyRecord,
+};
 
 const ALICE_PRIVKEY: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 const BOB_PRIVKEY: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
@@ -251,4 +259,189 @@ fn test_init_same_identity_twice() {
 
     destroy_identity(pk2).unwrap();
     cleanup(&db);
+}
+
+// ─── Helpers for Signal persistence ─────────────────────────────────────────
+
+fn save_keys(db: &SecureStorage, peer_id: &str, dev_id: u32, keys: &SignalPreKeyMaterial) {
+    db.save_signal_participant(
+        peer_id,
+        dev_id,
+        &keys.identity_key_pair.identity_key().serialize(),
+        &keys.identity_key_pair.private_key().serialize(),
+        keys.registration_id,
+        u32::from(keys.signed_prekey_id),
+        &keys.signed_prekey.serialize().unwrap(),
+        u32::from(keys.prekey_id),
+        &keys.prekey.serialize().unwrap(),
+        u32::from(keys.kyber_prekey_id),
+        &keys.kyber_prekey.serialize().unwrap(),
+    )
+    .unwrap();
+}
+
+fn load_keys(db: &SecureStorage, peer_id: &str) -> (u32, SignalPreKeyMaterial) {
+    let (dev_id, id_pub, id_priv, reg_id, spk_id, spk_rec, pk_id, pk_rec, kpk_id, kpk_rec) =
+        db.load_signal_participant(peer_id).unwrap().unwrap();
+    let identity_key = IdentityKey::decode(&id_pub).unwrap();
+    let private_key = SignalPrivateKey::deserialize(&id_priv).unwrap();
+    (
+        dev_id,
+        SignalPreKeyMaterial {
+            identity_key_pair: IdentityKeyPair::new(identity_key, private_key),
+            registration_id: reg_id,
+            signed_prekey_id: SignedPreKeyId::from(spk_id),
+            signed_prekey: SignedPreKeyRecord::deserialize(&spk_rec).unwrap(),
+            prekey_id: PreKeyId::from(pk_id),
+            prekey: PreKeyRecord::deserialize(&pk_rec).unwrap(),
+            kyber_prekey_id: KyberPreKeyId::from(kpk_id),
+            kyber_prekey: KyberPreKeyRecord::deserialize(&kpk_rec).unwrap(),
+        },
+    )
+}
+
+// ─── Test 4: Two identities, each with Signal session, persist independently ─
+
+#[test]
+fn test_multi_identity_signal_session_persistence() {
+    let db_a = temp_db("sig_alice");
+    let db_b = temp_db("sig_bob");
+    cleanup(&db_a);
+    cleanup(&db_b);
+
+    // Alice talks to Tom, Bob talks to Jerry — two completely independent Signal sessions
+    // Each identity has its own DB, its own persistent participant
+
+    let alice_signal_id: String;
+    let tom_signal_id: String;
+    let bob_signal_id: String;
+    let jerry_signal_id: String;
+
+    // Phase 1: establish two independent sessions, exchange messages
+    {
+        let storage_a = Arc::new(Mutex::new(SecureStorage::open(&db_a, DB_KEY).unwrap()));
+        let storage_b = Arc::new(Mutex::new(SecureStorage::open(&db_b, DB_KEY).unwrap()));
+
+        let alice_keys = generate_prekey_material().unwrap();
+        let bob_keys = generate_prekey_material().unwrap();
+
+        // Alice (persistent) ↔ Tom (in-memory)
+        let mut alice =
+            SignalParticipant::persistent("alice".into(), 1, alice_keys.clone(), storage_a.clone())
+                .unwrap();
+        let mut tom = SignalParticipant::new("tom", 1).unwrap();
+
+        alice_signal_id = alice.identity_public_key_hex();
+        tom_signal_id = tom.identity_public_key_hex();
+
+        let tom_bundle = tom.prekey_bundle().unwrap();
+        let tom_addr = ProtocolAddress::new(tom_signal_id.clone(), DeviceId::new(1).unwrap());
+        let alice_addr = ProtocolAddress::new(alice_signal_id.clone(), DeviceId::new(1).unwrap());
+
+        alice.process_prekey_bundle(&tom_addr, &tom_bundle).unwrap();
+
+        let ct = alice.encrypt(&tom_addr, b"Alice->Tom: hello").unwrap();
+        let pt = tom.decrypt(&alice_addr, &ct.bytes).unwrap();
+        assert_eq!(
+            String::from_utf8(pt.plaintext).unwrap(),
+            "Alice->Tom: hello"
+        );
+
+        // Direction change so ratchet advances
+        let ct2 = tom.encrypt(&alice_addr, b"Tom->Alice: hi").unwrap();
+        let pt2 = alice.decrypt(&tom_addr, &ct2.bytes).unwrap();
+        assert_eq!(String::from_utf8(pt2.plaintext).unwrap(), "Tom->Alice: hi");
+
+        save_keys(&storage_a.lock().unwrap(), &tom_signal_id, 1, &alice_keys);
+
+        // Bob (persistent) ↔ Jerry (in-memory)
+        let mut bob =
+            SignalParticipant::persistent("bob".into(), 2, bob_keys.clone(), storage_b.clone())
+                .unwrap();
+        let mut jerry = SignalParticipant::new("jerry", 1).unwrap();
+
+        bob_signal_id = bob.identity_public_key_hex();
+        jerry_signal_id = jerry.identity_public_key_hex();
+
+        let jerry_bundle = jerry.prekey_bundle().unwrap();
+        let jerry_addr = ProtocolAddress::new(jerry_signal_id.clone(), DeviceId::new(1).unwrap());
+        let bob_addr = ProtocolAddress::new(bob_signal_id.clone(), DeviceId::new(1).unwrap());
+
+        bob.process_prekey_bundle(&jerry_addr, &jerry_bundle)
+            .unwrap();
+
+        let ct3 = bob.encrypt(&jerry_addr, b"Bob->Jerry: yo").unwrap();
+        let pt3 = jerry.decrypt(&bob_addr, &ct3.bytes).unwrap();
+        assert_eq!(String::from_utf8(pt3.plaintext).unwrap(), "Bob->Jerry: yo");
+
+        let ct4 = jerry.encrypt(&bob_addr, b"Jerry->Bob: hey").unwrap();
+        let pt4 = bob.decrypt(&jerry_addr, &ct4.bytes).unwrap();
+        assert_eq!(String::from_utf8(pt4.plaintext).unwrap(), "Jerry->Bob: hey");
+
+        save_keys(&storage_b.lock().unwrap(), &jerry_signal_id, 2, &bob_keys);
+
+        eprintln!("✅ Phase 1: Alice↔Tom and Bob↔Jerry sessions established, 4 messages exchanged");
+    }
+    // All participants dropped — only DB files remain
+
+    // Phase 2: restart both, verify identity keys restored independently
+    {
+        let storage_a = Arc::new(Mutex::new(SecureStorage::open(&db_a, DB_KEY).unwrap()));
+        let storage_b = Arc::new(Mutex::new(SecureStorage::open(&db_b, DB_KEY).unwrap()));
+
+        // Restore Alice
+        let (dev_a, keys_a) = load_keys(&storage_a.lock().unwrap(), &tom_signal_id);
+        assert_eq!(dev_a, 1);
+        let alice_restored =
+            SignalParticipant::persistent("alice".into(), dev_a, keys_a, storage_a.clone())
+                .unwrap();
+        assert_eq!(
+            alice_restored.identity_public_key_hex(),
+            alice_signal_id,
+            "Alice identity key must survive restart"
+        );
+
+        // Restore Bob
+        let (dev_b, keys_b) = load_keys(&storage_b.lock().unwrap(), &jerry_signal_id);
+        assert_eq!(dev_b, 2);
+        let bob_restored =
+            SignalParticipant::persistent("bob".into(), dev_b, keys_b, storage_b.clone()).unwrap();
+        assert_eq!(
+            bob_restored.identity_public_key_hex(),
+            bob_signal_id,
+            "Bob identity key must survive restart"
+        );
+
+        // They should be completely different identities
+        assert_ne!(
+            alice_restored.identity_public_key_hex(),
+            bob_restored.identity_public_key_hex(),
+            "Alice and Bob must have different Signal identities"
+        );
+
+        // Verify DB isolation: Alice's DB should NOT contain Bob's participant
+        assert!(
+            storage_a
+                .lock()
+                .unwrap()
+                .load_signal_participant(&jerry_signal_id)
+                .unwrap()
+                .is_none(),
+            "Alice's DB must NOT contain Bob's peer (Jerry)"
+        );
+        assert!(
+            storage_b
+                .lock()
+                .unwrap()
+                .load_signal_participant(&tom_signal_id)
+                .unwrap()
+                .is_none(),
+            "Bob's DB must NOT contain Alice's peer (Tom)"
+        );
+
+        eprintln!("✅ Phase 2: both identities restored, keys match, DBs isolated");
+    }
+
+    cleanup(&db_a);
+    cleanup(&db_b);
 }
