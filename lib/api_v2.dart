@@ -68,10 +68,12 @@ Future<V2CompleteFriendRequestResult> completeFriendRequest({
   required String pubkey,
   required String firstInboxPubkey,
   required String eventJson,
+  int? remoteDeviceId,
 }) => RustLib.instance.api.crateApiV2CompleteFriendRequest(
   pubkey: pubkey,
   firstInboxPubkey: firstInboxPubkey,
   eventJson: eventJson,
+  remoteDeviceId: remoteDeviceId,
 );
 
 Future<V2EncryptResult> encrypt({

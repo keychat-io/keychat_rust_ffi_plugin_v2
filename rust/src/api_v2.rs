@@ -544,6 +544,7 @@ pub fn complete_friend_request(
     pubkey: String,
     first_inbox_pubkey: String,
     event_json: String,
+    remote_device_id: Option<u32>,
 ) -> Result<V2CompleteFriendRequestResult> {
     with_state(&pubkey, |state| {
         // 1. Find the pending FR by matching firstInbox pubkey
@@ -576,12 +577,17 @@ pub fn complete_friend_request(
         )
         .map_err(|e| anyhow!("invalid base64 in approve event: {}", e))?;
 
-        // The acceptor encrypted with remote_address = ProtocolAddress(our_signal_id, our_device_id).
-        let my_signal_id = pending.signal.identity_public_key_hex();
+        // Extract the peer's signal identity from the PrekeyMessage BEFORE decrypting.
+        // libsignal stores the session keyed by `remote_addr`, so we MUST use the
+        // peer's identity — not our own — otherwise encrypt() later can't find
+        // the session (it looks up by peer_signal_id, not by our own signal id).
+        let peer_identity_hex = SignalParticipant::extract_prekey_sender_identity(&ciphertext)
+            .ok_or_else(|| anyhow!("cannot extract sender identity from approve PrekeyMessage"))?;
         let mut signal = pending.signal;
+        let dev_id = remote_device_id.unwrap_or(1);
         let remote_addr = ProtocolAddress::new(
-            my_signal_id.clone(),
-            DeviceId::new(state.device_id as u8).unwrap(),
+            peer_identity_hex.clone(),
+            DeviceId::new(dev_id as u8).unwrap_or(DeviceId::new(1).unwrap()),
         );
 
         let decrypt_result = signal.decrypt(&remote_addr, &ciphertext)?;
@@ -611,7 +617,8 @@ pub fn complete_friend_request(
         let mut addr_mgr = AddressManager::new();
         addr_mgr.add_peer(
             &peer_signal_id,
-            None, // no first_inbox for this peer (we are the requester)
+            None, // Alice doesn't have Bob's firstInbox; after decrypt the ratchet
+                  // should provide derived addresses when Alice encrypts her first message
             Some(peer_nostr_pubkey.clone()),
         );
 
@@ -629,9 +636,29 @@ pub fn complete_friend_request(
 
         persist_address_state(&state.storage, &peer_signal_id, &addr_mgr)?;
 
-        // Save peer mapping to DB
+        // Persist signal participant keys and peer mapping to DB
         {
             let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
+
+            // Move keys from pending_friend_requests → signal_participants table
+            // so the session survives app restart.
+            if let Ok(Some(pending_data)) = db.load_pending_fr(&request_id) {
+                let (dev_id, id_pub, id_priv, reg_id, spk_id, spk_rec, pk_id, pk_rec, kpk_id, kpk_rec, _secret) = pending_data;
+                db.save_signal_participant(
+                    &peer_signal_id,
+                    dev_id,
+                    &id_pub,
+                    &id_priv,
+                    reg_id,
+                    spk_id,
+                    &spk_rec,
+                    pk_id,
+                    &pk_rec,
+                    kpk_id,
+                    &kpk_rec,
+                )?;
+            }
+
             let peer_name = msg
                 .get("signalPrekeyAuth")
                 .and_then(|spa| spa.get("name"))
