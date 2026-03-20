@@ -145,9 +145,10 @@ fn test_mls_v2_full_lifecycle() {
     )
     .unwrap();
     assert_eq!(bob_pt.plaintext, "Hello from Alice!");
+    assert_eq!(bob_pt.msg_type, "application");
     eprintln!(
-        "  Bob decrypted: '{}' from sender={}",
-        bob_pt.plaintext, bob_pt.sender_id
+        "  Bob decrypted: '{}' from sender={} type={}",
+        bob_pt.plaintext, bob_pt.sender_id, bob_pt.msg_type
     );
 
     // Charlie decrypts

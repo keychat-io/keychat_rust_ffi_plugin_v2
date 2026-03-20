@@ -2119,11 +2119,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   V2MlsDecryptResult dco_decode_v_2_mls_decrypt_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return V2MlsDecryptResult(
       plaintext: dco_decode_String(arr[0]),
       senderId: dco_decode_String(arr[1]),
+      msgType: dco_decode_String(arr[2]),
     );
   }
 
@@ -2385,7 +2386,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_plaintext = sse_decode_String(deserializer);
     var var_senderId = sse_decode_String(deserializer);
-    return V2MlsDecryptResult(plaintext: var_plaintext, senderId: var_senderId);
+    var var_msgType = sse_decode_String(deserializer);
+    return V2MlsDecryptResult(
+        plaintext: var_plaintext,
+        senderId: var_senderId,
+        msgType: var_msgType);
   }
 
   @protected
@@ -2616,6 +2621,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.plaintext, serializer);
     sse_encode_String(self.senderId, serializer);
+    sse_encode_String(self.msgType, serializer);
   }
 
   @protected

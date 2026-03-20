@@ -662,10 +662,18 @@ class V2MlsDecryptResult {
   final String plaintext;
   final String senderId;
 
-  const V2MlsDecryptResult({required this.plaintext, required this.senderId});
+  /// "application" or "commit"
+  final String msgType;
+
+  const V2MlsDecryptResult({
+    required this.plaintext,
+    required this.senderId,
+    required this.msgType,
+  });
 
   @override
-  int get hashCode => plaintext.hashCode ^ senderId.hashCode;
+  int get hashCode =>
+      plaintext.hashCode ^ senderId.hashCode ^ msgType.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -673,7 +681,8 @@ class V2MlsDecryptResult {
       other is V2MlsDecryptResult &&
           runtimeType == other.runtimeType &&
           plaintext == other.plaintext &&
-          senderId == other.senderId;
+          senderId == other.senderId &&
+          msgType == other.msgType;
 }
 
 class V2MlsGroupInfo {

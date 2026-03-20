@@ -990,10 +990,15 @@ pub struct V2MlsAddMembersResult {
     pub welcome_base64: String,
 }
 
+/// Message type returned by mls_decrypt.
+///   "application" — user chat message (plaintext is non-empty)
+///   "commit"      — MLS commit (already merged; plaintext is empty)
 #[derive(Debug, Clone)]
 pub struct V2MlsDecryptResult {
     pub plaintext: String,
     pub sender_id: String,
+    /// "application" or "commit"
+    pub msg_type: String,
 }
 
 #[derive(Debug, Clone)]
@@ -1089,7 +1094,10 @@ pub fn mls_encrypt(pubkey: String, group_id: String, plaintext: String) -> Resul
     })
 }
 
-/// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
+/// Decrypt MLS message (base64). Handles both application messages and commits.
+///
+/// For application messages: returns plaintext + sender_id, msg_type = "application".
+/// For commits: merges the commit, returns empty plaintext, msg_type = "commit".
 pub fn mls_decrypt(
     pubkey: String,
     group_id: String,
@@ -1100,9 +1108,16 @@ pub fn mls_decrypt(
         let mls = get_mls(state)?;
         let ct = base64::engine::general_purpose::STANDARD.decode(&ciphertext_base64)?;
         let (pt_bytes, sender_id) = mls.decrypt(&group_id, &ct)?;
+        let msg_type = if pt_bytes.is_empty() {
+            "commit".to_string()
+        } else {
+            "application".to_string()
+        };
         Ok(V2MlsDecryptResult {
-            plaintext: String::from_utf8(pt_bytes)?,
+            plaintext: String::from_utf8(pt_bytes)
+                .unwrap_or_default(),
             sender_id,
+            msg_type,
         })
     })
 }

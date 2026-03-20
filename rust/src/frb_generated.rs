@@ -2090,9 +2090,11 @@ impl SseDecode for crate::api_v2::V2MlsDecryptResult {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_plaintext = <String>::sse_decode(deserializer);
         let mut var_senderId = <String>::sse_decode(deserializer);
+        let mut var_msgType = <String>::sse_decode(deserializer);
         return crate::api_v2::V2MlsDecryptResult {
             plaintext: var_plaintext,
             sender_id: var_senderId,
+            msg_type: var_msgType,
         };
     }
 }
@@ -2401,6 +2403,7 @@ impl flutter_rust_bridge::IntoDart for crate::api_v2::V2MlsDecryptResult {
         [
             self.plaintext.into_into_dart().into_dart(),
             self.sender_id.into_into_dart().into_dart(),
+            self.msg_type.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2646,6 +2649,7 @@ impl SseEncode for crate::api_v2::V2MlsDecryptResult {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.plaintext, serializer);
         <String>::sse_encode(self.sender_id, serializer);
+        <String>::sse_encode(self.msg_type, serializer);
     }
 }
 
