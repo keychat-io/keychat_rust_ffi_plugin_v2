@@ -2549,7 +2549,7 @@ dependencies = [
 [[package]]
 name = "libkeychat"
 version = "0.1.0"
-source = "git+https://github.com/keychat-io/keychat-protocol.git?branch=main#b51a45da30fb910557ae942caf1e992a264b86f1"
+source = "git+https://github.com/keychat-io/keychat-protocol.git?branch=main#a9459b6ab25ef6e1e05541b00af78ab3cef9146d"
 dependencies = [
  "aes",
  "async-trait",
