@@ -39,6 +39,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<V2PeerInfo> dco_decode_list_v_2_peer_info(dynamic raw);
+
+  @protected
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
@@ -89,6 +92,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   V2ParsedMessage dco_decode_v_2_parsed_message(dynamic raw);
 
   @protected
+  V2PeerInfo dco_decode_v_2_peer_info(dynamic raw);
+
+  @protected
   V2UnwrappedEvent dco_decode_v_2_unwrapped_event(dynamic raw);
 
   @protected
@@ -108,6 +114,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<V2PeerInfo> sse_decode_list_v_2_peer_info(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -168,6 +177,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   V2ParsedMessage sse_decode_v_2_parsed_message(SseDeserializer deserializer);
 
   @protected
+  V2PeerInfo sse_decode_v_2_peer_info(SseDeserializer deserializer);
+
+  @protected
   V2UnwrappedEvent sse_decode_v_2_unwrapped_event(SseDeserializer deserializer);
 
   @protected
@@ -194,6 +206,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_v_2_peer_info(
+    List<V2PeerInfo> self,
     SseSerializer serializer,
   );
 
@@ -274,6 +292,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     V2ParsedMessage self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_v_2_peer_info(V2PeerInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_v_2_unwrapped_event(

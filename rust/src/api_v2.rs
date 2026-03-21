@@ -57,6 +57,7 @@ pub struct V2IncomingFriendRequest {
 pub struct V2AcceptResult {
     pub event_json: String,
     pub peer_signal_identity: String,
+    pub new_receiving_addresses: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -92,6 +93,14 @@ pub struct V2CompleteFriendRequestResult {
     pub peer_nostr_pubkey: String,
     pub approve_message_json: String,
     pub new_receiving_addresses: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct V2PeerInfo {
+    pub signal_id: String,
+    pub nostr_pubkey: String,
+    pub name: String,
+    pub created_at: u64,
 }
 
 // ─── V2 State ───────────────────────────────────────────────────────────────
@@ -517,9 +526,18 @@ pub fn accept_friend_request(
             db.save_peer_mapping(&peer_nostr_hex, &signal_id, &my_display_name)?;
         }
 
-        // Register peer address manager
+        // Register peer address manager and derive receiving address from
+        // the prekey message encrypt's sender_address (ratchet key).
         let mut addr_mgr = AddressManager::new();
         addr_mgr.add_peer(&signal_id, Some(peer_first_inbox), Some(peer_nostr_hex));
+
+        let new_receiving = if let Some(ref sender_addr) = accepted.sender_address {
+            let update = addr_mgr.on_encrypt(&signal_id, Some(sender_addr.as_str()))?;
+            update.new_receiving
+        } else {
+            Vec::new()
+        };
+
         persist_address_state(&state.storage, &signal_id, &addr_mgr)?;
 
         state
@@ -530,6 +548,7 @@ pub fn accept_friend_request(
         Ok(V2AcceptResult {
             event_json: event_to_json(&accepted.event),
             peer_signal_identity,
+            new_receiving_addresses: new_receiving,
         })
     })
 }
@@ -921,20 +940,17 @@ pub fn resolve_send_address(pubkey: String, peer_signal_id: String) -> Result<St
 // ─── Persistence-specific APIs ──────────────────────────────────────────────
 
 /// List all known peers from DB.
-pub fn list_peers(pubkey: String) -> Result<Vec<String>> {
+pub fn list_peers(pubkey: String) -> Result<Vec<V2PeerInfo>> {
     with_state(&pubkey, |state| {
         let db = state.storage.lock().map_err(|e| anyhow!("lock: {}", e))?;
         let peers = db.list_peers()?;
         Ok(peers
-            .iter()
-            .map(|p| {
-                serde_json::to_string(&serde_json::json!({
-                    "nostr_pubkey": p.nostr_pubkey,
-                    "signal_id": p.signal_id,
-                    "name": p.name,
-                    "created_at": p.created_at,
-                }))
-                .unwrap_or_default()
+            .into_iter()
+            .map(|p| V2PeerInfo {
+                signal_id: p.signal_id,
+                nostr_pubkey: p.nostr_pubkey,
+                name: p.name,
+                created_at: p.created_at as u64,
             })
             .collect())
     })

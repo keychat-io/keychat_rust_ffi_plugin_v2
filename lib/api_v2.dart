@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `event_from_json`, `event_to_json`, `get_mls`, `identity_from_secret_hex`, `persist_address_state`, `reconstruct_keys`, `save_keys_to_db`, `save_pending_keys_to_db`, `with_state`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PendingFriendRequest`, `V2State`, `V2`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deref`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `initialize`
 
 Future<String> initV2({
   required String nostrPrivkeyHex,
@@ -182,7 +182,7 @@ Future<String> resolveSendAddress({
 );
 
 /// List all known peers from DB.
-Future<List<String>> listPeers({required String pubkey}) =>
+Future<List<V2PeerInfo>> listPeers({required String pubkey}) =>
     RustLib.instance.api.crateApiV2ListPeers(pubkey: pubkey);
 
 /// Check if we have a session with a peer.
@@ -275,7 +275,10 @@ Future<String> mlsEncrypt({
   plaintext: plaintext,
 );
 
-/// Decrypt MLS ciphertext (base64). Returns plaintext + sender_id.
+/// Decrypt MLS message (base64). Handles both application messages and commits.
+///
+/// For application messages: returns plaintext + sender_id, msg_type = "application".
+/// For commits: merges the commit, returns empty plaintext, msg_type = "commit".
 Future<V2MlsDecryptResult> mlsDecrypt({
   required String pubkey,
   required String groupId,
@@ -428,14 +431,19 @@ Future<bool> relayIsConnected({required String pubkey}) =>
 class V2AcceptResult {
   final String eventJson;
   final String peerSignalIdentity;
+  final List<String> newReceivingAddresses;
 
   const V2AcceptResult({
     required this.eventJson,
     required this.peerSignalIdentity,
+    required this.newReceivingAddresses,
   });
 
   @override
-  int get hashCode => eventJson.hashCode ^ peerSignalIdentity.hashCode;
+  int get hashCode =>
+      eventJson.hashCode ^
+      peerSignalIdentity.hashCode ^
+      newReceivingAddresses.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -443,7 +451,8 @@ class V2AcceptResult {
       other is V2AcceptResult &&
           runtimeType == other.runtimeType &&
           eventJson == other.eventJson &&
-          peerSignalIdentity == other.peerSignalIdentity;
+          peerSignalIdentity == other.peerSignalIdentity &&
+          newReceivingAddresses == other.newReceivingAddresses;
 }
 
 class V2CompleteFriendRequestResult {
@@ -658,6 +667,9 @@ class V2MlsAddMembersResult {
           welcomeBase64 == other.welcomeBase64;
 }
 
+/// Message type returned by mls_decrypt.
+///   "application" — user chat message (plaintext is non-empty)
+///   "commit"      — MLS commit (already merged; plaintext is empty)
 class V2MlsDecryptResult {
   final String plaintext;
   final String senderId;
@@ -672,8 +684,7 @@ class V2MlsDecryptResult {
   });
 
   @override
-  int get hashCode =>
-      plaintext.hashCode ^ senderId.hashCode ^ msgType.hashCode;
+  int get hashCode => plaintext.hashCode ^ senderId.hashCode ^ msgType.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -725,6 +736,37 @@ class V2ParsedMessage {
           runtimeType == other.runtimeType &&
           kind == other.kind &&
           contentJson == other.contentJson;
+}
+
+class V2PeerInfo {
+  final String signalId;
+  final String nostrPubkey;
+  final String name;
+  final BigInt createdAt;
+
+  const V2PeerInfo({
+    required this.signalId,
+    required this.nostrPubkey,
+    required this.name,
+    required this.createdAt,
+  });
+
+  @override
+  int get hashCode =>
+      signalId.hashCode ^
+      nostrPubkey.hashCode ^
+      name.hashCode ^
+      createdAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is V2PeerInfo &&
+          runtimeType == other.runtimeType &&
+          signalId == other.signalId &&
+          nostrPubkey == other.nostrPubkey &&
+          name == other.name &&
+          createdAt == other.createdAt;
 }
 
 class V2UnwrappedEvent {

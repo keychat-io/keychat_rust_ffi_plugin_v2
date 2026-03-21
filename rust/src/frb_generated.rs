@@ -1915,6 +1915,18 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::api_v2::V2PeerInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api_v2::V2PeerInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1968,9 +1980,11 @@ impl SseDecode for crate::api_v2::V2AcceptResult {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_eventJson = <String>::sse_decode(deserializer);
         let mut var_peerSignalIdentity = <String>::sse_decode(deserializer);
+        let mut var_newReceivingAddresses = <Vec<String>>::sse_decode(deserializer);
         return crate::api_v2::V2AcceptResult {
             event_json: var_eventJson,
             peer_signal_identity: var_peerSignalIdentity,
+            new_receiving_addresses: var_newReceivingAddresses,
         };
     }
 }
@@ -2125,6 +2139,22 @@ impl SseDecode for crate::api_v2::V2ParsedMessage {
     }
 }
 
+impl SseDecode for crate::api_v2::V2PeerInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_signalId = <String>::sse_decode(deserializer);
+        let mut var_nostrPubkey = <String>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_createdAt = <u64>::sse_decode(deserializer);
+        return crate::api_v2::V2PeerInfo {
+            signal_id: var_signalId,
+            nostr_pubkey: var_nostrPubkey,
+            name: var_name,
+            created_at: var_createdAt,
+        };
+    }
+}
+
 impl SseDecode for crate::api_v2::V2UnwrappedEvent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2236,6 +2266,7 @@ impl flutter_rust_bridge::IntoDart for crate::api_v2::V2AcceptResult {
         [
             self.event_json.into_into_dart().into_dart(),
             self.peer_signal_identity.into_into_dart().into_dart(),
+            self.new_receiving_addresses.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2460,6 +2491,24 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api_v2::V2ParsedMessage>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api_v2::V2PeerInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.signal_id.into_into_dart().into_dart(),
+            self.nostr_pubkey.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api_v2::V2PeerInfo {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api_v2::V2PeerInfo> for crate::api_v2::V2PeerInfo {
+    fn into_into_dart(self) -> crate::api_v2::V2PeerInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api_v2::V2UnwrappedEvent {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -2523,6 +2572,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::api_v2::V2PeerInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api_v2::V2PeerInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2574,6 +2633,7 @@ impl SseEncode for crate::api_v2::V2AcceptResult {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.event_json, serializer);
         <String>::sse_encode(self.peer_signal_identity, serializer);
+        <Vec<String>>::sse_encode(self.new_receiving_addresses, serializer);
     }
 }
 
@@ -2667,6 +2727,16 @@ impl SseEncode for crate::api_v2::V2ParsedMessage {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.kind, serializer);
         <String>::sse_encode(self.content_json, serializer);
+    }
+}
+
+impl SseEncode for crate::api_v2::V2PeerInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.signal_id, serializer);
+        <String>::sse_encode(self.nostr_pubkey, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <u64>::sse_encode(self.created_at, serializer);
     }
 }
 

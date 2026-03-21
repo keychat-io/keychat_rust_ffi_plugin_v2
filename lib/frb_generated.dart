@@ -157,7 +157,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<List<String>> crateApiV2ListIdentities();
 
-  Future<List<String>> crateApiV2ListPeers({required String pubkey});
+  Future<List<V2PeerInfo>> crateApiV2ListPeers({required String pubkey});
 
   Future<void> crateApiV2MarkEventProcessed({
     required String pubkey,
@@ -891,7 +891,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "list_identities", argNames: []);
 
   @override
-  Future<List<String>> crateApiV2ListPeers({required String pubkey}) {
+  Future<List<V2PeerInfo>> crateApiV2ListPeers({required String pubkey}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -905,7 +905,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_list_String,
+          decodeSuccessData: sse_decode_list_v_2_peer_info,
           decodeErrorData: sse_decode_AnyhowException,
         ),
         constMeta: kCrateApiV2ListPeersConstMeta,
@@ -1975,6 +1975,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<V2PeerInfo> dco_decode_list_v_2_peer_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_v_2_peer_info).toList();
+  }
+
+  @protected
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
@@ -2014,11 +2020,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   V2AcceptResult dco_decode_v_2_accept_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return V2AcceptResult(
       eventJson: dco_decode_String(arr[0]),
       peerSignalIdentity: dco_decode_String(arr[1]),
+      newReceivingAddresses: dco_decode_list_String(arr[2]),
     );
   }
 
@@ -2154,6 +2161,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  V2PeerInfo dco_decode_v_2_peer_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return V2PeerInfo(
+      signalId: dco_decode_String(arr[0]),
+      nostrPubkey: dco_decode_String(arr[1]),
+      name: dco_decode_String(arr[2]),
+      createdAt: dco_decode_u_64(arr[3]),
+    );
+  }
+
+  @protected
   V2UnwrappedEvent dco_decode_v_2_unwrapped_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -2212,6 +2233,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<V2PeerInfo> sse_decode_list_v_2_peer_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <V2PeerInfo>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_v_2_peer_info(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2261,9 +2294,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_eventJson = sse_decode_String(deserializer);
     var var_peerSignalIdentity = sse_decode_String(deserializer);
+    var var_newReceivingAddresses = sse_decode_list_String(deserializer);
     return V2AcceptResult(
       eventJson: var_eventJson,
       peerSignalIdentity: var_peerSignalIdentity,
+      newReceivingAddresses: var_newReceivingAddresses,
     );
   }
 
@@ -2388,9 +2423,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_senderId = sse_decode_String(deserializer);
     var var_msgType = sse_decode_String(deserializer);
     return V2MlsDecryptResult(
-        plaintext: var_plaintext,
-        senderId: var_senderId,
-        msgType: var_msgType);
+      plaintext: var_plaintext,
+      senderId: var_senderId,
+      msgType: var_msgType,
+    );
   }
 
   @protected
@@ -2412,6 +2448,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_kind = sse_decode_String(deserializer);
     var var_contentJson = sse_decode_String(deserializer);
     return V2ParsedMessage(kind: var_kind, contentJson: var_contentJson);
+  }
+
+  @protected
+  V2PeerInfo sse_decode_v_2_peer_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_signalId = sse_decode_String(deserializer);
+    var var_nostrPubkey = sse_decode_String(deserializer);
+    var var_name = sse_decode_String(deserializer);
+    var var_createdAt = sse_decode_u_64(deserializer);
+    return V2PeerInfo(
+      signalId: var_signalId,
+      nostrPubkey: var_nostrPubkey,
+      name: var_name,
+      createdAt: var_createdAt,
+    );
   }
 
   @protected
@@ -2482,6 +2533,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_v_2_peer_info(
+    List<V2PeerInfo> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_v_2_peer_info(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2532,6 +2595,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.eventJson, serializer);
     sse_encode_String(self.peerSignalIdentity, serializer);
+    sse_encode_list_String(self.newReceivingAddresses, serializer);
   }
 
   @protected
@@ -2643,6 +2707,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.kind, serializer);
     sse_encode_String(self.contentJson, serializer);
+  }
+
+  @protected
+  void sse_encode_v_2_peer_info(V2PeerInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.signalId, serializer);
+    sse_encode_String(self.nostrPubkey, serializer);
+    sse_encode_String(self.name, serializer);
+    sse_encode_u_64(self.createdAt, serializer);
   }
 
   @protected
